@@ -1,0 +1,145 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Copyright 2019 Logic PD, Inc
+ */
+ 
+/ {
+	backlight: backlight-lvds {
+		compatible = "pwm-backlight";
+		pwms = <&pwm1 0 20000>;
+		brightness-levels = <0 4 8 16 32 64 128 255>;
+		default-brightness-level = <6>;
+		power-supply = <&reg_lcd>;
+	};
+
+	reg_lcd: regulator-lcd {
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_lcd_reg>;
+		compatible = "regulator-fixed";
+		regulator-name = "lcd_panel_pwr";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&gpio1 8 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		startup-delay-us = <500000>;
+		regulator-always-on;
+	};
+
+	reg_lcd_reset: regulator-lcd-reset {
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_lcd_rst>;
+		compatible = "regulator-fixed";
+		regulator-name = "nLCD_RESET";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&gpio1 15 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		vin-supply = <&reg_lcd>;
+		regulator-always-on;
+	};
+};
+
+&i2c2 {
+	ili_touch: ilitouch@26 {
+		compatible = "ili,ili2117a";
+		reg = <0x26>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_touchscreen>;
+		interrupts-extended = <&gpio1 9 IRQ_TYPE_LEVEL_LOW>;
+		ili2117a,poll-period = <20>;
+		ili2117a,max-touch = <2>;
+		wakeup-source;
+	};
+
+	dsi_lvds_bridge: sn65dsi83@2d {
+		compatible = "ti,sn65dsi83";
+		reg = <0x2d>;
+		ti,dsi-lanes = <4>;
+		ti,lvds-format = <2>;
+		ti,lvds-bpp = <24>;
+		ti,width-mm = <154>;
+		ti,height-mm = <87>;
+		enable-gpios = <&gpio2 11 GPIO_ACTIVE_LOW>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_lvds>;
+		status = "okay";
+
+		display-timings {
+			lvds {
+				clock-frequency = <30000000>;
+				hactive = <800>;
+				vactive = <480>;
+				hback-porch = <40>;
+				hfront-porch = <40>;
+				vback-porch = <29>;
+				vfront-porch = <13>;
+				hsync-len = <48>;
+				vsync-len = <3>;
+				hsync-active = <1>;
+				vsync-active = <3>;
+				de-active = <1>;
+				pixelclk-active = <0>;
+			};
+		};
+
+		port {
+			dsi_lvds_bridge_in: endpoint {
+				remote-endpoint = <&mipi_dsi_out>;
+			};
+		};
+	};
+};
+
+&lcdif {
+	status = "okay";
+};
+
+&mipi_dsi {
+	status = "okay";
+
+	port@1 {
+		mipi_dsi_out: endpoint {
+			remote-endpoint = <&dsi_lvds_bridge_in>;
+		};
+	};
+};
+
+&pwm1 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_pwm1>;
+};
+
+&iomuxc {
+
+	pinctrl_lcd_reg: lcd_reggrp {
+		fsl,pins = <
+			MX8MN_IOMUXC_GPIO1_IO08_GPIO1_IO8		0x16
+		>;
+	};
+
+	pinctrl_lcd_rst: lcd_rstgrp {
+		fsl,pins = <
+			MX8MN_IOMUXC_GPIO1_IO15_GPIO1_IO15		0x16
+		>;
+	};
+
+	pinctrl_lvds: lvdsgrp {
+		fsl,pins = <
+			MX8MN_IOMUXC_SD1_STROBE_GPIO2_IO11              0x16
+		>;
+	};
+
+	pinctrl_pwm1: pwm1grp {
+		fsl,pins = <
+			MX8MN_IOMUXC_GPIO1_IO01_PWM1_OUT                0x06
+		>;
+	};
+
+	pinctrl_touchscreen: touchscreengrp {
+		fsl,pins = <
+			MX8MN_IOMUXC_GPIO1_IO09_GPIO1_IO9		0x119
+		>;
+	};
+
+};

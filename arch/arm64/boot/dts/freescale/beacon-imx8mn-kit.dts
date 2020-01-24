@@ -1,0 +1,21 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Copyright 2020 Beacon EmbeddedWorks
+ */
+
+/dts-v1/;
+
+#include "fsl-imx8mn.dtsi"
+#include "beacon-imx8mn-som.dtsi"
+#include "beacon-imx8mn-baseboard.dtsi"
+#include "beacon-imx8mn-lvds.dtsi"
+
+/ {
+	model = "Beacon EmbeddedWorks i.MX8M Nano Development Kit";
+	compatible = "fsl,imx8mn";
+
+	chosen {
+		bootargs = "console=ttymxc1,115200";
+		stdout-path = &uart2;
+	};
+};
