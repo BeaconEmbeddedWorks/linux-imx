@@ -1,18 +1,17 @@
 // SPDX-License-Identifier: (GPL-2.0 OR MIT)
 /*
- * Copyright 2017 NXP
- * Copyright 2019 Logic PD, Inc
+ * Copyright 2020 Beacon EmbeddedWorks
  */
 
 /dts-v1/;
 
 #include "fsl-imx8mm.dtsi"
-#include "lpd-imx8mm-som.dtsi"
-#include "lpd-imx8mm-baseboard.dtsi"
-#include "lpd-imx8mm-lvds.dtsi"
+#include "beacon-imx8mm-som.dtsi"
+#include "beacon-imx8mm-baseboard.dtsi"
+#include "beacon-imx8mm-lvds.dtsi"
 
 / {
-	model = "Logic PD i.MX8M mini Developent Kit";
+	model = "beacon EmbeddedWorks i.MX8M mini Developent Kit";
 	compatible = "fsl,imx8mm";
 
 	chosen {
