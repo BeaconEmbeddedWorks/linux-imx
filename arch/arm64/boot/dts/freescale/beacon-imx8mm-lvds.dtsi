@@ -41,14 +41,11 @@
 
 &i2c2 {
 	ili_touch: ilitouch@26 {
-		compatible = "ili,ili2117a";
+		compatible = "ilitek,ili2117";
 		reg = <0x26>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_touchscreen>;
-		interrupts-extended = <&gpio1 9 IRQ_TYPE_LEVEL_LOW>;
-		ili2117a,poll-period = <20>;
-		ili2117a,max-touch = <2>;
-		wakeup-source;
+		interrupts-extended = <&gpio1 9 IRQ_TYPE_EDGE_RISING>;
 	};
 
 	dsi_lvds_bridge: sn65dsi83@2d {
@@ -138,7 +135,7 @@
 
 	pinctrl_touchscreen: touchscreengrp {
 		fsl,pins = <
-			MX8MM_IOMUXC_GPIO1_IO09_GPIO1_IO9		0x19
+			MX8MM_IOMUXC_GPIO1_IO09_GPIO1_IO9		0x119
 		>;
 	};
 
