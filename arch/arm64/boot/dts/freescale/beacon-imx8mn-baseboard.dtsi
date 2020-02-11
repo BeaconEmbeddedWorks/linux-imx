@@ -33,25 +33,6 @@
 		};
 	};
 
-	reg_pcie_pwr_en: regulator-pci_pwr_en {
-		compatible = "regulator-fixed";
-		regulator-name = "pci_pwr_en";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-		enable-active-high;
-		gpio = <&pca6416_1 1 GPIO_ACTIVE_HIGH>;
-		vin-supply = <&reg_pcie_nclkreq>;
-		startup-delay-us = <5000000>;
-	};
-
-	reg_pcie_nclkreq: regulator-pcie_nclkreq {
-		compatible = "regulator-fixed";
-		regulator-name = "pcie_nclkreq";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-		gpio = <&pca6416_1 2 GPIO_ACTIVE_LOW>;
-	};
-
 	reg_usdhc2_vmmc: regulator-usdhc2 {
 		compatible = "regulator-fixed";
 		regulator-name = "VSD_3V3";
@@ -71,15 +52,6 @@
 		regulator-max-microvolt = <5000000>;
 		gpio = <&gpio4 29 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
-	};
-
-	reg_usb_h1_vbus: regulator-usbh1vbus {
-		compatible = "regulator-fixed";
-		regulator-name = "usb_h1_vbus";
-		regulator-min-microvolt = <5000000>;
-		regulator-max-microvolt = <5000000>;
-		gpio = <&pca6416_1 7 GPIO_ACTIVE_LOW>; /* nRST */
-		enable-active-low;
 	};
 
 	reg_audio: regulator-audio {
@@ -167,7 +139,6 @@
 			>;
 		};
 
-
 		pinctrl_pdm: pdmgrp {
 			fsl,pins = <
 				MX8MN_IOMUXC_SAI5_MCLK_SAI5_MCLK	0xd6
@@ -177,13 +148,6 @@
 				MX8MN_IOMUXC_SAI5_RXD1_PDM_BIT_STREAM1	0xd6
 				MX8MN_IOMUXC_SAI5_RXD2_PDM_BIT_STREAM2	0xd6
 				MX8MN_IOMUXC_SAI5_RXD3_PDM_BIT_STREAM3	0xd6
-			>;
-		};
-
-		pinctrl_pcie0: pcie0grp {
-			fsl,pins = <
-				MX8MN_IOMUXC_GPIO1_IO05_GPIO1_IO5	0x41
-				MX8MN_IOMUXC_SAI2_RXFS_GPIO4_IO21	0x41
 			>;
 		};
 
@@ -333,7 +297,6 @@
 			};
 		};
 	};
-
 };
 
 &micfil {
@@ -361,7 +324,6 @@
 };
 
 &i2c4 {
-
 	clock-frequency = <400000>;
 	pinctrl-names = "default", "gpio";
 	pinctrl-0 = <&pinctrl_i2c4>;
