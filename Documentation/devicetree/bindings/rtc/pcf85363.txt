@@ -8,10 +8,52 @@ Required properties:
 Optional properties:
 - interrupts: IRQ line for the RTC (not implemented).
 
+- nxp,rtc-interrupt-type: integer property, represent the interrupt's
+  type. Valid values are
+  INT_PIE(periodic interrupt enable),
+  INT_OIE(offset correction interrupt enable),
+  INT_A1IE(alarm1 interrupt enable),
+  INT_A2IE(alarm2 interrupt enable),
+  INT_TSRIE(timestamp register interrupt enable)
+  INT_BSIE(battery switch interrupt enable),
+  INT_WDIE(WatchDog interrupt enable,and
+  compose these values such as: INT_A1IE | INT_A2IE,
+  but currently only support INT_A1IE, default value is INT_A1IE.
+  The property and property nxp,rtc-interrupt-output-pin
+  work together to generate some interrupts on some pins.
+
+- nxp,rtc-interrupt-output-pin: The interrupt output pin must be
+  "INTA" or "INTB", default value is "INTA". The property and property
+  nxp,rtc-interrupt-type work together to generate some interrupts on
+  some pins.
+
+- quartz-load-femtofarads: The internal capacitor to select for the quartz,
+  expressed in femto Farad (fF). Valid values are 6000, 7000 and 12500.
+  Default value is 12500fF.
+
+- quartz-drive-strength-ohms: Drive strength for the quartz,
+  expressed in ohm, Valid values are 60000, 100000 and 500000.
+  Default value is 100000 ohm.
+
+- nxp,quartz-low-jitter: Boolean property, if present enables low jitter mode
+  which reduces jitter at the cost of increased power consumption.
+
+- wakeup-source: Boolean property, Please refer to
+  Documentation/devicetree/bindings/power/wakeup-source.txt
+
 Example:
 
 pcf85363: pcf85363@51 {
 	compatible = "nxp,pcf85363";
 	reg = <0x51>;
-};
 
+	interrupt-parent = <&gpio1>;
+	interrupts = <18 IRQ_TYPE_EDGE_FALLING>;
+
+	wakeup-source;
+	nxp,rtc-interrupt-output-pin = "INTA";
+	nxp,rtc-interrupt-type = <INT_A1IE>;
+	quartz-load-femtofarads = <12500>;
+	quartz-drive-strength-ohms = <60000>;
+	nxp,quartz-low-jitter;
+};
