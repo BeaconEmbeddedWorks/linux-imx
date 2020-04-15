@@ -66,14 +66,6 @@
 		};
 	};
 
-	modem_reset: modem-reset {
-		compatible = "gpio-reset";
-		reset-gpios = <&gpio2 6 GPIO_ACTIVE_LOW>;
-		reset-delay-us = <2000>;
-		reset-post-delay-ms = <40>;
-		#reset-cells = <0>;
-	};
-
 	reg_pcie_pwr_en: regulator-pci_pwr_en {
 		compatible = "regulator-fixed";
 		regulator-name = "pci_pwr_en";
