@@ -66,6 +66,16 @@
 		};
 	};
 
+	reg_camera: regulator-camera {
+		compatible = "regulator-fixed";
+		regulator-name = "mipi_pwr_nen";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&pca6416_1 0 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		startup-delay-us = <100000>;
+	};
+
 	reg_pcie_pwr_en: regulator-pci_pwr_en {
 		compatible = "regulator-fixed";
 		regulator-name = "pci_pwr_en";
@@ -349,6 +359,9 @@
 		assigned-clock-parents = <&clk IMX8MM_CLK_24M>;
 		assigned-clock-rates = <0>, <24000000>;
 		csi_id = <0>;
+		DOVDD-supply = <&reg_camera>;
+		AVDD-supply = <&reg_camera>;
+		DVDD-supply = <&reg_camera>;
 		pwn-gpios = <&gpio1 7 GPIO_ACTIVE_HIGH>;
 		mclk = <24000000>;
 		mclk_source = <0>;

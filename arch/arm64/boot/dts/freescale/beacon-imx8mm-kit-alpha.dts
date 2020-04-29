@@ -1,0 +1,28 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Copyright 2020 Beacon EmbeddedWorks
+ */
+
+/dts-v1/;
+
+#include "fsl-imx8mm.dtsi"
+#include "beacon-imx8mm-som.dtsi"
+#include "beacon-imx8mm-baseboard.dtsi"
+#include "beacon-imx8mm-lvds.dtsi"
+
+/ {
+	model = "beacon EmbeddedWorks i.MX8M mini Developent Kit";
+	compatible = "fsl,imx8mm";
+
+	chosen {
+		stdout-path = &uart2;
+	};
+};
+
+/* For Alpha boards, camera power is active low */
+&reg_camera {
+	gpio = <&pca6416_1 0 GPIO_ACTIVE_LOW>;
+	/delete-property/ enable-active-high;
+};
+
+
