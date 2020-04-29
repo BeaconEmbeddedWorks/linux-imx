@@ -25,4 +25,26 @@
 	/delete-property/ enable-active-high;
 };
 
+/delete-node/ &pinctrl_espi2;
+/delete-node/ &pinctrl_uart3;
+
+&iomuxc {
+	/* Alpha hardware uses a different SS0 pin than beta */
+	pinctrl_espi2: espi2grp {
+		fsl,pins = <
+			MX8MM_IOMUXC_ECSPI2_SCLK_ECSPI2_SCLK		0x82
+			MX8MM_IOMUXC_ECSPI2_MOSI_ECSPI2_MOSI		0x82
+			MX8MM_IOMUXC_ECSPI2_MISO_ECSPI2_MISO		0x82
+			MX8MM_IOMUXC_ECSPI1_SS0_GPIO5_IO9		0x41
+		>;
+	};
+
+	/* UART 3 on Beta has no hw flow control */
+	pinctrl_uart3: uart3grp {
+		fsl,pins = <
+			MX8MM_IOMUXC_ECSPI1_SCLK_UART3_DCE_RX		0x140
+			MX8MM_IOMUXC_ECSPI1_MOSI_UART3_DCE_TX		0x140
+		>;
+	};
+};
 
