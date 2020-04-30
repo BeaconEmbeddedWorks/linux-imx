@@ -148,6 +148,12 @@
 			"IN3R", "AMIC";
 	};
 
+	sound-micfil {
+		compatible = "fsl,imx-audio-micfil";
+		model = "imx-audio-micfil";
+		cpu-dai = <&micfil>;
+	};
+
 	sound-spdif {
 		compatible = "fsl,imx-audio-spdif";
 		model = "imx-spdif";
@@ -233,6 +239,13 @@
 		pinctrl_pcal6414: pcal6414-gpio {
 			fsl,pins = <
 				MX8MM_IOMUXC_SAI2_MCLK_GPIO4_IO27        	0x19
+			>;
+		};
+
+		pinctrl_pdm: pdmgrp {
+			fsl,pins = <
+				MX8MM_IOMUXC_SAI5_RXC_PDM_CLK		0xd6
+				MX8MM_IOMUXC_SAI5_RXD0_PDM_DATA0	0xd6
 			>;
 		};
 
@@ -374,6 +387,15 @@
 		};
 	};
 
+};
+
+&micfil {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_pdm>;
+	assigned-clocks = <&clk IMX8MM_CLK_PDM>;
+	assigned-clock-parents = <&clk IMX8MM_AUDIO_PLL1_OUT>;
+	assigned-clock-rates = <196608000>;
+	status = "okay";
 };
 
 &mipi_csi_1 {
