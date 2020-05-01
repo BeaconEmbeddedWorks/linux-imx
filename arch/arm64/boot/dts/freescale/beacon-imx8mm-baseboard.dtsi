@@ -121,8 +121,6 @@
 		regulator-name = "usb_h1_vbus";
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
-		gpio = <&pca6416_1 7 GPIO_ACTIVE_LOW>; /* nRST */
-		enable-active-low;
 	};
 
 	reg_audio: regulator-audio {
@@ -522,6 +520,10 @@
 	dr_mode="host";
 	/*gpio = <&pca6416_1 7 0>;*/ /* nRST */
 	status = "okay";
+};
+
+&usbphynop2 {
+	reset-gpios = <&pca6416_1 7 GPIO_ACTIVE_HIGH>;
 };
 
 /*rfee  from uboot*/
