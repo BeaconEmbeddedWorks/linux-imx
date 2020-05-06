@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0 OR MIT)
 /*
- * Copyright 2020 Beacon EmbeddedWorks
+ * Copyright 2020 Compass Electronics Group, LLC
  */
 
 / {
@@ -184,7 +184,6 @@
 		>;
 	};
 
-	/* Added for LogicPD Phoenix SOM*/
 	pinctrl_i2c4: i2c4grp {
 		fsl,pins = <
 			MX8MM_IOMUXC_I2C4_SCL_I2C4_SCL		0x400001c3
@@ -383,7 +382,6 @@
 			};
 		};
 	};
-
 };
 
 &micfil {
@@ -538,7 +536,6 @@
 	pinctrl-names = "default";
 	disable-over-current;
 	dr_mode="host";
-	/*gpio = <&pca6416_1 7 0>;*/ /* nRST */
 	status = "okay";
 };
 
@@ -546,7 +543,6 @@
 	reset-gpios = <&pca6416_1 7 GPIO_ACTIVE_HIGH>;
 };
 
-/*rfee  from uboot*/
 &usdhc2 {
 	pinctrl-names = "default", "state_100mhz", "state_200mhz";
 	pinctrl-0 = <&pinctrl_usdhc2>, <&pinctrl_usdhc2_gpio>;
