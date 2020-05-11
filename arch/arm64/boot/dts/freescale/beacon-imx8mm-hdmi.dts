@@ -1,0 +1,79 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Copyright 2020 Compass Electronics Group, LLC
+ */
+
+/dts-v1/;
+
+#include "fsl-imx8mm.dtsi"
+#include "beacon-imx8mm-som.dtsi"
+#include "beacon-imx8mm-baseboard.dtsi"
+
+/ {
+	model = "beacon EmbeddedWorks i.MX8M mini Developent Kit";
+	compatible = "fsl,imx8mm";
+
+	chosen {
+		stdout-path = &uart2;
+	};
+
+	reg_hdmi: regulator-lcd {
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_hdmi>;
+		compatible = "regulator-fixed";
+		regulator-name = "hdmi_pwr_en";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&gpio2 11 GPIO_ACTIVE_LOW>;
+		startup-delay-us = <500000>;
+		regulator-always-on;
+	};
+};
+
+&i2c2 {
+	adv_bridge: adv7535@3d {
+		compatible = "adi,adv7533";
+		reg = <0x3d>;
+		adi,addr-cec = <0x3b>;
+		adi,dsi-lanes = <4>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_synaptics_dsx_io>;
+		interrupt-parent = <&gpio1>;
+		interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
+		status = "okay";
+
+		port {
+			adv7535_from_dsim: endpoint {
+				remote-endpoint = <&dsim_to_adv7535>;
+			};
+		};
+	};
+};
+
+&lcdif {
+	status = "okay";
+};
+
+&mipi_dsi {
+	status = "okay";
+
+	port@1 {
+		dsim_to_adv7535: endpoint {
+			remote-endpoint = <&adv7535_from_dsim>;
+		};
+	};
+};
+
+&iomuxc {
+	pinctrl_hdmi: lvdsgrp {
+		fsl,pins = <
+			MX8MM_IOMUXC_SD1_STROBE_GPIO2_IO11              0x16
+		>;
+	};
+
+	pinctrl_synaptics_dsx_io: synaptics_dsx_iogrp {
+		fsl,pins = <
+			MX8MM_IOMUXC_GPIO1_IO09_GPIO1_IO9		0x19
+		>;
+	};
+};
