@@ -236,6 +236,7 @@
 	pm-ignore-notify;
 	keep-power-in-suspend;
 	mmc-pwrseq = <&usdhc1_pwrseq>;
+	vqmmc-supply = <&buck5_reg>;
 	status = "okay";
 
 	brcmf: bcrmf@1 {
