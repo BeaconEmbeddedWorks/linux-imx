@@ -29,6 +29,15 @@ config EEPROM_AT24
 	  This driver can also be built as a module.  If so, the module
 	  will be called at24.
 
+config LPD_EEPROM
+	tristate "Logic PD MFG EEPROM"
+	depends on EEPROM_AT24
+	help
+	  Enable this driver to extract MFG EEPROM information like:
+	  dr_timings       part_number 	     version_code
+	  lan_macaddr      serial_number     wifi_config_data
+	  model_name       speed_mhz         wifi_macaddr
+
 config EEPROM_AT25
 	tristate "SPI EEPROMs from most vendors"
 	depends on SPI && SYSFS
