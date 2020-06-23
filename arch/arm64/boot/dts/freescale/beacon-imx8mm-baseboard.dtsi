@@ -374,6 +374,7 @@
 		AVDD-supply = <&reg_camera>;
 		DVDD-supply = <&reg_camera>;
 		pwn-gpios = <&gpio1 7 GPIO_ACTIVE_HIGH>;
+		rst-gpios = <&gpio1 6 GPIO_ACTIVE_LOW>;
 		mclk = <24000000>;
 		mclk_source = <0>;
 		port {
