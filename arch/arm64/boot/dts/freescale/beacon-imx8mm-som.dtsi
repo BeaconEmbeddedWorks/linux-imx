@@ -23,6 +23,7 @@
 	pinctrl-0 = <&pinctrl_fec1>;
 	phy-mode = "rgmii-id";
 	phy-handle = <&ethphy0>;
+	phy-supply = <&buck6_reg>;
 	fsl,magic-packet;
 	status = "okay";
 
@@ -221,6 +222,23 @@
 		clocks = <&osc_32k>;
 		clock-names = "extclk";
 	};
+};
+
+&usbmisc1 {
+	vbus-wakeup-supply = <&buck6_reg>;
+};
+
+
+&usbmisc2 {
+	vbus-wakeup-supply = <&buck6_reg>;
+};
+
+&usbphynop1 {
+	vcc-supply = <&buck6_reg>;
+};
+
+&usbphynop2 {
+	vcc-supply = <&buck6_reg>;
 };
 
 &usdhc1 {

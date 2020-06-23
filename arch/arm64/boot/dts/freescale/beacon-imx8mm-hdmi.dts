@@ -17,7 +17,21 @@
 		stdout-path = &uart2;
 	};
 
-	reg_hdmi: regulator-lcd {
+	reg_hdmi_1p2: regulator-hdmi-avdd {
+		compatible = "regulator-fixed";
+		regulator-name = "hdmi_v1p2";
+		regulator-min-microvolt = <1200000>;
+		regulator-max-microvolt = <1200000>;
+	};
+
+	reg_hdmi_avdd: regulator-hdmi-avdd {
+		compatible = "regulator-fixed";
+		regulator-name = "hdmi_avdd";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+	};
+
+	reg_hdmi_dvdd: regulator-hdmi-dvdd {
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_hdmi>;
 		compatible = "regulator-fixed";
@@ -34,7 +48,12 @@
 	adv_bridge: adv7535@3d {
 		compatible = "adi,adv7533";
 		reg = <0x3d>;
-		dvdd-supply = <&reg_hdmi>;
+		avdd-supply = <&reg_hdmi_avdd>;
+		a2vdd-supply = <&reg_hdmi_avdd>;
+		dvdd-supply = <&reg_hdmi_dvdd>;
+		pvdd-supply = <&reg_hdmi_avdd>;
+		v1p2-supply = <&reg_hdmi_1p2>;
+		v3p3-supply = <&reg_hdmi_dvdd>;
 		adi,addr-cec = <0x3b>;
 		adi,dsi-lanes = <4>;
 		pinctrl-names = "default";

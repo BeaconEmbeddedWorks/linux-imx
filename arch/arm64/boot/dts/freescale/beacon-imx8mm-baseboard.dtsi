@@ -426,6 +426,7 @@
 		reg = <0x20>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_pcal6414>;
+		vcc-supply = <&buck6_reg>;
 		gpio-controller;
 		#gpio-cells = <2>;
 		interrupt-parent = <&gpio4>;
@@ -435,6 +436,7 @@
 	pca6416_1: gpio@21 {
 		compatible = "nxp,pcal6416";
 		reg = <0x21>;
+		vcc-supply = <&buck6_reg>;
 		gpio-controller;
 		#gpio-cells = <2>;
 		interrupt-parent = <&gpio4>;
