@@ -221,6 +221,7 @@
 		shutdown-gpios = <&gpio2 6 GPIO_ACTIVE_HIGH>;
 		clocks = <&osc_32k>;
 		clock-names = "extclk";
+		max-speed = <4000000>;
 	};
 };
 
