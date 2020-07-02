@@ -225,13 +225,6 @@
 		>;
 	};
 
-	pinctrl_i2c4_gpio: i2c4grp-gpio {
-		fsl,pins = <
-			MX8MM_IOMUXC_I2C4_SCL_GPIO5_IO20        	0x1c3
-			MX8MM_IOMUXC_I2C4_SDA_GPIO5_IO21        	0x1c3
-		>;
-	};
-
 	pinctrl_pcal6414: pcal6414-gpio {
 		fsl,pins = <
 			MX8MM_IOMUXC_SAI2_MCLK_GPIO4_IO27        	0x19
@@ -417,9 +410,6 @@
 	clock-frequency = <384000>;
 	pinctrl-names = "default", "gpio";
 	pinctrl-0 = <&pinctrl_i2c4>;
-	pinctrl-1 = <&pinctrl_i2c4_gpio>;
-	scl-gpios = <&gpio5 20 GPIO_ACTIVE_HIGH>;
-	sda-gpios = <&gpio5 21 GPIO_ACTIVE_HIGH>;
 	status = "okay";
 
 	pca6416_0: gpio@20 {
