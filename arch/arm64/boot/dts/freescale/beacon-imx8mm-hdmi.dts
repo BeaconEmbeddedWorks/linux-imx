@@ -42,11 +42,25 @@
 		enable-active-high;
 		startup-delay-us = <70000>;
 	};
+
+	hdmi_sound: hdmi-sound {
+		compatible = "simple-audio-card";
+		simple-audio-card,name = "hdmi-sound";
+		simple-audio-card,format = "i2s";
+		#sound-dai-cells = <0>;
+		simple-audio-card,cpu {
+			sound-dai = <&sai5 0>;
+			system-clock-direction-out;
+		};
+		simple-audio-card,codec {
+			sound-dai = <&adv_bridge 0>;
+		};
+	};
 };
 
 &i2c2 {
 	adv_bridge: adv7535@3d {
-		compatible = "adi,adv7533";
+		compatible = "adi,adv7535";
 		reg = <0x3d>;
 		avdd-supply = <&reg_hdmi_avdd>;
 		a2vdd-supply = <&reg_hdmi_avdd>;
@@ -60,11 +74,25 @@
 		pinctrl-0 = <&pinctrl_synaptics_dsx_io>;
 		interrupt-parent = <&gpio1>;
 		interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
+		#sound-dai-cells = <0>;
 		status = "okay";
 
-		port {
-			adv7535_from_dsim: endpoint {
-				remote-endpoint = <&dsim_to_adv7535>;
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+				adv7535_from_dsim: endpoint {
+					remote-endpoint = <&dsim_to_adv7535>;
+				};
+			};
+
+			port@2 {
+				reg = <2>;
+				codec_adv7535: endpoint {
+					remove-endpoint = <&hdmi_sound>;
+				};
 			};
 		};
 	};
@@ -84,10 +112,28 @@
 	};
 };
 
+&sai5 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_sai5>;
+	assigned-clocks = <&clk IMX8MM_CLK_SAI5>;
+	assigned-clock-parents = <&clk IMX8MM_AUDIO_PLL1_OUT>;
+	assigned-clock-rates = <24576000>;
+	#sound-dai-cells = <0>;
+	status = "okay";
+};
+
 &iomuxc {
-	pinctrl_hdmi: lvdsgrp {
+	pinctrl_hdmi: hdmigrp {
 		fsl,pins = <
 			MX8MM_IOMUXC_SD1_STROBE_GPIO2_IO11              0x16
+		>;
+	};
+
+	pinctrl_sai5: sai5grp {
+		fsl,pins = <
+			MX8MM_IOMUXC_SAI5_RXD3_SAI5_TX_DATA0	0xd6
+			MX8MM_IOMUXC_SAI5_RXD2_SAI5_TX_BCLK	0xd6
+			MX8MM_IOMUXC_SAI5_RXD1_SAI5_TX_SYNC	0xd6
 		>;
 	};
 
