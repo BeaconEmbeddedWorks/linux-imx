@@ -9,7 +9,7 @@
 		pwms = <&pwm1 0 20000>;
 		brightness-levels = <0 4 8 16 32 64 128 255>;
 		default-brightness-level = <6>;
-		power-supply = <&reg_lcd>;
+		power-supply = <&reg_lcd_reset>;
 	};
 
 	reg_lcd: regulator-lcd {
@@ -21,8 +21,6 @@
 		regulator-max-microvolt = <3300000>;
 		gpio = <&gpio1 8 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
-		startup-delay-us = <500000>;
-		regulator-always-on;
 	};
 
 	reg_lcd_reset: regulator-lcd-reset {
@@ -35,7 +33,6 @@
 		gpio = <&gpio1 15 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 		vin-supply = <&reg_lcd>;
-		regulator-always-on;
 	};
 };
 
