@@ -30,7 +30,7 @@ config EEPROM_AT24
 	  will be called at24.
 
 config LPD_EEPROM
-	tristate "Logic PD MFG EEPROM"
+	tristate "Beacon EmbeddedWorks MFG EEPROM Decoder"
 	depends on EEPROM_AT24
 	help
 	  Enable this driver to extract MFG EEPROM information like:

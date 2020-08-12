@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0
 obj-$(CONFIG_EEPROM_AT24)	+= at24.o
-obj-$(CONFIG_LPD_EEPROM)        += logicpd-new-productid.o
+obj-$(CONFIG_LPD_EEPROM)        += beacon-productid.o
 obj-$(CONFIG_EEPROM_AT25)	+= at25.o
 obj-$(CONFIG_EEPROM_LEGACY)	+= eeprom.o
 obj-$(CONFIG_EEPROM_MAX6875)	+= max6875.o

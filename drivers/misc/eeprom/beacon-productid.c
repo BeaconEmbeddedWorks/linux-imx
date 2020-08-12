@@ -726,7 +726,7 @@ static struct id_cookie cpu0_group_cookie;
 static struct id_cookie serialization_group_cookie;
 static struct id_cookie model_group_cookie;
 
-static int omap3logic_find_model_group_cookie(struct id_cookie *mg_cookie)
+static int beacon_mfg_find_model_group_cookie(struct id_cookie *mg_cookie)
 {
 	int ret;
 	struct id_cookie cookie;
@@ -759,7 +759,7 @@ static int omap3logic_find_model_group_cookie(struct id_cookie *mg_cookie)
 	return ret;
 }
 
-static int omap3logic_find_serialization_cookie(struct id_cookie *s_cookie)
+static int beacon_mfg_find_serialization_cookie(struct id_cookie *s_cookie)
 {
 	int ret;
 	struct id_cookie cookie;
@@ -791,7 +791,7 @@ static int omap3logic_find_serialization_cookie(struct id_cookie *s_cookie)
 	return ID_EOK;
 }
 
-static int omap3logic_find_cpu0_group_cookie(struct id_cookie *s_cookie)
+static int beacon_mfg_find_cpu0_group_cookie(struct id_cookie *s_cookie)
 {
 	int ret;
 	struct id_cookie cookie;
@@ -823,12 +823,12 @@ static int omap3logic_find_cpu0_group_cookie(struct id_cookie *s_cookie)
 	return ID_EOK;
 }
 
-int omap3logic_extract_new_part_number(u32 *part_number)
+int beacon_mfg_extract_new_part_number(u32 *part_number)
 {
 	int ret;
 	struct id_cookie cookie;
 
-	ret = omap3logic_find_model_group_cookie(&cookie);
+	ret = beacon_mfg_find_model_group_cookie(&cookie);
 	if (ret != ID_EOK) {
 		printk(KERN_ERR "%s:%d ret %d\n", __func__, __LINE__, ret);
 		return ret;
@@ -843,12 +843,12 @@ int omap3logic_extract_new_part_number(u32 *part_number)
 	return ret;
 }
 
-int omap3logic_extract_new_version_code(u32 *version_code)
+int beacon_mfg_extract_new_version_code(u32 *version_code)
 {
 	int ret;
 	struct id_cookie cookie;
 
-	ret = omap3logic_find_model_group_cookie(&cookie);
+	ret = beacon_mfg_find_model_group_cookie(&cookie);
 	if (ret != ID_EOK) {
 		printk(KERN_ERR "%s:%d ret %d\n", __func__, __LINE__, ret);
 		return -EINVAL;
@@ -863,12 +863,12 @@ int omap3logic_extract_new_version_code(u32 *version_code)
 	return ret;
 }
 
-int omap3logic_extract_new_speed_mhz(u32 *speed_mhz)
+int beacon_mfg_extract_new_speed_mhz(u32 *speed_mhz)
 {
 	int ret;
 	struct id_cookie cookie;
 
-	ret = omap3logic_find_cpu0_group_cookie(&cookie);
+	ret = beacon_mfg_find_cpu0_group_cookie(&cookie);
 	if (ret != ID_EOK) {
 		printk(KERN_ERR "%s:%d ret %d\n", __func__, __LINE__, ret);
 		return ret;
@@ -915,7 +915,7 @@ id_keys_t dram_bus_group_keys[] = {
 	ID_KEY_cs_cfg_reg,
 };
 
-int omap3logic_extract_new_ddr_timings(struct ddr_timings *ddr_timings)
+int beacon_mfg_extract_new_ddr_timings(struct ddr_timings *ddr_timings)
 {
 	int ret;
 	struct id_cookie cookie, dram_bus_group_cookie;
@@ -970,12 +970,12 @@ int omap3logic_extract_new_ddr_timings(struct ddr_timings *ddr_timings)
 	return ret;
 }
 
-static int omap3logic_extract_new_model_name(char *model_name, u32 *model_name_size)
+static int beacon_mfg_extract_new_model_name(char *model_name, u32 *model_name_size)
 {
 	int ret;
 	struct id_cookie cookie;
 
-	ret = omap3logic_find_model_group_cookie(&cookie);
+	ret = beacon_mfg_find_model_group_cookie(&cookie);
 	if (ret != ID_EOK) {
 		printk(KERN_ERR "%s:%d ret %d\n", __func__, __LINE__, ret);
 		return ret;
@@ -992,12 +992,12 @@ static int omap3logic_extract_new_model_name(char *model_name, u32 *model_name_s
 	return ret;
 }
 
-int omap3logic_extract_new_serial_number(u8 *serial_number, u32 *serial_number_size)
+int beacon_mfg_extract_new_serial_number(u8 *serial_number, u32 *serial_number_size)
 {
 	int ret;
 	struct id_cookie cookie;
 
-	ret = omap3logic_find_serialization_cookie(&cookie);
+	ret = beacon_mfg_find_serialization_cookie(&cookie);
 	if (ret != ID_EOK) {
 		printk(KERN_ERR "%s:%d ret %d\n", __func__, __LINE__, ret);
 		return ret;
@@ -1014,12 +1014,12 @@ int omap3logic_extract_new_serial_number(u8 *serial_number, u32 *serial_number_s
 	return ret;
 }
 
-int omap3logic_extract_new_nvs_data(u8 *nvs_data, u32 *nvs_data_size)
+int beacon_mfg_extract_new_nvs_data(u8 *nvs_data, u32 *nvs_data_size)
 {
 	int ret;
 	struct id_cookie cookie;
 
-	ret = omap3logic_find_serialization_cookie(&cookie);
+	ret = beacon_mfg_find_serialization_cookie(&cookie);
 	if (ret != ID_EOK) {
 		printk(KERN_ERR "%s:%d ret %d\n", __func__, __LINE__, ret);
 		return ret;
@@ -1083,7 +1083,7 @@ static int logic_has_new_product_id(void)
 	return found_id_data;
 }
 
-static int omap3logic_init_new_product_id(void)
+static int beacon_mfg_init_new_product_id(void)
 {
 	if (!logic_has_new_product_id()) {
 		printk(KERN_ERR "%s:%d\n", __func__, __LINE__);
@@ -1094,7 +1094,7 @@ static int omap3logic_init_new_product_id(void)
 }
 
 /* Extract the Wired LAN ethaddr, and return !0 if its valid */
-static int omap3logic_extract_new_lan_ethaddr(u8 *ethaddr)
+static int beacon_mfg_extract_new_lan_ethaddr(u8 *ethaddr)
 {
 	int ret;
 	struct id_cookie cookie;
@@ -1137,7 +1137,7 @@ done:
 }
 
 /* Extract the WiFi ethaddr, and return !0 if its valid */
-static int omap3logic_extract_new_wifi_ethaddr(u8 *ethaddr)
+static int beacon_mfg_extract_new_wifi_ethaddr(u8 *ethaddr)
 {
 	int ret;
 	struct id_cookie cookie;
@@ -1185,7 +1185,7 @@ static ssize_t product_id_show_wifi_macaddr(struct class *class, struct class_at
 	int ret;
 	int len;
 
-	ret = omap3logic_extract_new_wifi_ethaddr(macaddr);
+	ret = beacon_mfg_extract_new_wifi_ethaddr(macaddr);
 	if (!ret) {
 		len = sprintf(buf, "%02x:%02x:%02x:%02x:%02x:%02x\n",
 			macaddr[0], macaddr[1], macaddr[2],
@@ -1200,7 +1200,7 @@ static ssize_t product_id_show_lan_macaddr(struct class *class, struct class_att
 	int ret;
 	int len;
 
-	ret = omap3logic_extract_new_lan_ethaddr(macaddr);
+	ret = beacon_mfg_extract_new_lan_ethaddr(macaddr);
 	if (!ret) {
 		len = sprintf(buf, "%02x:%02x:%02x:%02x:%02x:%02x\n",
 			macaddr[0], macaddr[1], macaddr[2],
@@ -1214,7 +1214,7 @@ static ssize_t product_id_show_part_number(struct class *class, struct class_att
 	u32 part_number;
 	int len;
 
-	omap3logic_extract_new_part_number(&part_number);
+	beacon_mfg_extract_new_part_number(&part_number);
 	len = sprintf(buf, "%d\n", part_number);
 	return len;
 }
@@ -1224,7 +1224,7 @@ static ssize_t product_id_show_model_name(struct class *class, struct class_attr
 	u32 model_name_size = 128;
 	int ret;
 
-	ret = omap3logic_extract_new_model_name((u8 *)buf, &model_name_size);
+	ret = beacon_mfg_extract_new_model_name((u8 *)buf, &model_name_size);
 
 	buf[model_name_size] = '\n';
 	return model_name_size + 1;
@@ -1235,7 +1235,7 @@ static ssize_t product_id_show_version_code(struct class *class, struct class_at
 	u32 version_code;
 	int len;
 
-	omap3logic_extract_new_version_code(&version_code);
+	beacon_mfg_extract_new_version_code(&version_code);
 	len = sprintf(buf, "%u\n", version_code);
 	return len;
 }
@@ -1244,7 +1244,7 @@ static ssize_t product_id_show_serial_number(struct class *class, struct class_a
 {
 	u32 serial_number_size = 128;
 
-	omap3logic_extract_new_serial_number((u8 *)buf, &serial_number_size);
+	beacon_mfg_extract_new_serial_number((u8 *)buf, &serial_number_size);
 	buf[serial_number_size] = '\n';
 	return serial_number_size + 1;
 }
@@ -1254,7 +1254,7 @@ static ssize_t product_id_show_speed_mhz(struct class *clase, struct class_attri
 	u32 speed_mhz;
 	int len;
 
-	omap3logic_extract_new_speed_mhz(&speed_mhz);
+	beacon_mfg_extract_new_speed_mhz(&speed_mhz);
 	len = sprintf(buf, "%u\n", speed_mhz);
 	return len;
 }
@@ -1264,7 +1264,7 @@ static ssize_t product_id_show_wifi_config_data(struct class *class, struct clas
 	u32 wifi_config_size = PAGE_SIZE;
 	int ret;
 
-	ret = omap3logic_extract_new_nvs_data(buf, &wifi_config_size);
+	ret = beacon_mfg_extract_new_nvs_data(buf, &wifi_config_size);
 
 	if (ret == ID_EOK)
 		return wifi_config_size;
@@ -1343,7 +1343,7 @@ static struct class product_id_class = {
 	.dev_release = product_id_dev_release,
 };
 
-static int omap3logic_create_new_product_id_sysfs(void)
+static int beacon_mfg_create_new_product_id_sysfs(void)
 {
 	int i, rc;
 
@@ -1372,17 +1372,17 @@ static int omap3logic_create_new_product_id_sysfs(void)
 	return 0;
 }
 
-static int omap3logic_extract_nvs_data(u8 *nvs_data, u32 *nvs_data_size)
+static int beacon_mfg_extract_nvs_data(u8 *nvs_data, u32 *nvs_data_size)
 {
-	return omap3logic_extract_new_nvs_data(nvs_data, nvs_data_size);
+	return beacon_mfg_extract_new_nvs_data(nvs_data, nvs_data_size);
 }
 /* Extract the version code for the SOM */
-int omap3logic_extract_version_code(void)
+int beacon_mfg_extract_version_code(void)
 {
 	int err;
 	u32 version_code;
 
-	err = omap3logic_extract_new_version_code(&version_code);
+	err = beacon_mfg_extract_new_version_code(&version_code);
 	if (!err)
 		return version_code;
 
@@ -1414,7 +1414,7 @@ static int read_eeprom(void)
 		printk(KERN_ALERT "filp_open error!!.\n");
 	else{
 		fs = get_fs();
-		set_fs(get_ds());
+		set_fs(KERNEL_DS);
 
 		/* Read the header */
 		sz = sizeof(hdr);
@@ -1455,8 +1455,8 @@ static int __init productid_init(void)
 #ifdef EEPROM_PATH
 	read_eeprom();
 #endif
-	omap3logic_init_new_product_id();
-	omap3logic_create_new_product_id_sysfs();
+	beacon_mfg_init_new_product_id();
+	beacon_mfg_create_new_product_id_sysfs();
 	return 0;
 }
 
@@ -1474,11 +1474,11 @@ static void __exit productid_exit(void)
 
 module_exit(productid_exit);
 
-EXPORT_SYMBOL(omap3logic_extract_nvs_data);
-EXPORT_SYMBOL(omap3logic_extract_version_code);
+EXPORT_SYMBOL(beacon_mfg_extract_nvs_data);
+EXPORT_SYMBOL(beacon_mfg_extract_version_code);
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Adam Ford <adam.ford@logicpd.com>");
-MODULE_DESCRIPTION("Logic PD EEPROM reader");
+MODULE_AUTHOR("Adam Ford <aford@beaconembedded.com>");
+MODULE_DESCRIPTION("Beacon EmbeddedWorks EEPROM reader");
 MODULE_VERSION("printk");
 
