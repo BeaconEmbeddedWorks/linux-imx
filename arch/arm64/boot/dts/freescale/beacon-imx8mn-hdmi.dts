@@ -1,0 +1,144 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Copyright 2020 Compass Electronics Group, LLC
+ */
+
+/dts-v1/;
+
+#include "fsl-imx8mn.dtsi"
+#include "beacon-imx8mn-som.dtsi"
+#include "beacon-imx8mn-baseboard.dtsi"
+
+/ {
+	model = "beacon EmbeddedWorks i.MX8M Nano Developent Kit";
+	compatible = "fsl,imx8mn";
+
+	chosen {
+		stdout-path = &uart2;
+	};
+
+	reg_hdmi_1p2: regulator-hdmi-avdd {
+		compatible = "regulator-fixed";
+		regulator-name = "hdmi_v1p2";
+		regulator-min-microvolt = <1200000>;
+		regulator-max-microvolt = <1200000>;
+	};
+
+	reg_hdmi_avdd: regulator-hdmi-avdd {
+		compatible = "regulator-fixed";
+		regulator-name = "hdmi_avdd";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+	};
+
+	reg_hdmi_dvdd: regulator-hdmi-dvdd {
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_hdmi>;
+		compatible = "regulator-fixed";
+		regulator-name = "hdmi_pwr_en";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&gpio2 11 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		startup-delay-us = <70000>;
+	};
+
+	hdmi_sound: hdmi-sound {
+		compatible = "simple-audio-card";
+		simple-audio-card,name = "hdmi-sound";
+		simple-audio-card,format = "i2s";
+		#sound-dai-cells = <0>;
+		status = "okay";
+		simple-audio-card,cpu {
+			sound-dai = <&sai5 0>;
+			system-clock-direction-out;
+		};
+		simple-audio-card,codec {
+			sound-dai = <&adv_bridge 0>;
+		};
+	};
+};
+
+&i2c2 {
+	adv_bridge: adv7535@3d {
+		compatible = "adi,adv7535";
+		reg = <0x3d>;
+		avdd-supply = <&reg_hdmi_avdd>;
+		a2vdd-supply = <&reg_hdmi_avdd>;
+		dvdd-supply = <&reg_hdmi_dvdd>;
+		pvdd-supply = <&reg_hdmi_avdd>;
+		v1p2-supply = <&reg_hdmi_1p2>;
+		v3p3-supply = <&reg_hdmi_dvdd>;
+		adi,addr-cec = <0x3b>;
+		adi,dsi-lanes = <4>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_synaptics_dsx_io>;
+		#sound-dai-cells = <0>;
+		status = "okay";
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+				adv7535_from_dsim: endpoint {
+					remote-endpoint = <&dsim_to_adv7535>;
+				};
+			};
+
+			port@2 {
+				reg = <2>;
+				codec_adv7535: endpoint {
+					remove-endpoint = <&hdmi_sound>;
+				};
+			};
+		};
+	};
+};
+
+&lcdif {
+	status = "okay";
+};
+
+&mipi_dsi {
+	status = "okay";
+
+	port@1 {
+		dsim_to_adv7535: endpoint {
+			remote-endpoint = <&adv7535_from_dsim>;
+		};
+	};
+};
+
+&sai5 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_sai5>;
+	assigned-clocks = <&clk IMX8MN_CLK_SAI5>;
+	assigned-clock-parents = <&clk IMX8MN_AUDIO_PLL1_OUT>;
+	assigned-clock-rates = <24576000>;
+	#sound-dai-cells = <0>;
+	status = "okay";
+};
+
+&iomuxc {
+	pinctrl_hdmi: hdmigrp {
+		fsl,pins = <
+			MX8MN_IOMUXC_SD1_STROBE_GPIO2_IO11              0x16
+		>;
+	};
+
+	pinctrl_sai5: sai5grp {
+		fsl,pins = <
+			MX8MN_IOMUXC_SAI5_RXD3_SAI5_TX_DATA0	0xd6
+			MX8MN_IOMUXC_SAI5_RXD2_SAI5_TX_BCLK	0xd6
+			MX8MN_IOMUXC_SAI5_RXD1_SAI5_TX_SYNC	0xd6
+		>;
+	};
+
+	pinctrl_synaptics_dsx_io: synaptics_dsx_iogrp {
+		fsl,pins = <
+			MX8MN_IOMUXC_GPIO1_IO09_GPIO1_IO9		0x19
+		>;
+	};
+};
