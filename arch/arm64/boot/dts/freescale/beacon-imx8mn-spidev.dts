@@ -1,0 +1,61 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Copyright 2020 Beacon EmbeddedWorks
+ */
+
+/dts-v1/;
+
+#include "fsl-imx8mn.dtsi"
+#include "beacon-imx8mn-som.dtsi"
+#include "beacon-imx8mn-baseboard.dtsi"
+#include "beacon-imx8mn-lvds.dtsi"
+
+/ {
+	model = "beacon EmbeddedWorks i.MX8M Nano Development Kit";
+	compatible = "fsl,imx8mn";
+
+	chosen {
+		stdout-path = &uart2;
+	};
+
+	aliases {
+		/delete-property/ serial2;
+	};
+};
+
+/* UART3 shares pins with ECSPI1, so they cannot both exist */
+/delete-node/ &uart3;
+
+&ecspi1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_ecspi1>;
+	status = "okay";
+	cs-gpios = <&gpio5 9 GPIO_ACTIVE_LOW>;
+
+	spidev1@0x00 {
+               compatible = "spidev";
+               spi-max-frequency = <5000000>;
+               reg = <0>;
+       };
+};
+
+&ecspi2 {
+	/delete-node/ at25@0;
+	
+	spidev1@0x00 {
+               compatible = "spidev";
+               spi-max-frequency = <5000000>;
+               reg = <0>;
+       };
+};
+
+&iomuxc {
+	pinctrl_ecspi1: uart3grp {
+		fsl,pins = <
+			MX8MN_IOMUXC_ECSPI1_SCLK_ECSPI1_SCLK		0x82
+			MX8MN_IOMUXC_ECSPI1_MOSI_ECSPI1_MOSI		0x82
+			MX8MN_IOMUXC_ECSPI1_MISO_ECSPI1_MISO		0x82
+			MX8MN_IOMUXC_ECSPI1_SS0_GPIO5_IO9		0x41
+		>;
+	};
+};
