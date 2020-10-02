@@ -1863,7 +1863,6 @@ int sec_mipi_dsim_bind(struct device *dev, struct device *master, void *data,
 
 	pm_runtime_get_sync(dev);
 	version = dsim_read(dsim, DSIM_VERSION);
-	WARN_ON(version != pdata->version);
 	pm_runtime_put_sync(dev);
 
 	dev_info(dev, "version number is %#x\n", version);
