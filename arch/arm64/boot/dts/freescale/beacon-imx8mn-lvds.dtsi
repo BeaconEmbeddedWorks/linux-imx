@@ -42,6 +42,7 @@
 		reg = <0x26>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_touchscreen>;
+		vdd-supply = <&reg_lcd_reset>;
 		interrupts-extended = <&gpio1 9 IRQ_TYPE_EDGE_RISING>;
 	};
 
