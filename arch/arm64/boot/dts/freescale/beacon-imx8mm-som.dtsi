@@ -57,7 +57,7 @@
 };
 
 &i2c1 {
-	clock-frequency = <400000>;
+	clock-frequency = <384000>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_i2c1>;
 	status = "okay";
@@ -175,7 +175,7 @@
 };
 
 &i2c3 {
-	clock-frequency = <400000>;
+	clock-frequency = <384000>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_i2c3>;
 	status = "okay";
