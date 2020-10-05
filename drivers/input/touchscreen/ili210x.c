@@ -11,6 +11,7 @@
 #include <linux/sizes.h>
 #include <linux/slab.h>
 #include <asm/unaligned.h>
+#include <linux/regulator/consumer.h>
 
 #define ILI2XXX_POLL_PERIOD	20
 
@@ -43,6 +44,7 @@ struct ili210x {
 	struct touchscreen_properties prop;
 	const struct ili2xxx_chip *chip;
 	bool stop;
+	struct regulator *reg_vdd;
 };
 
 static int ili210x_read_reg(struct i2c_client *client,
@@ -355,6 +357,7 @@ static int ili210x_i2c_probe(struct i2c_client *client,
 	struct input_dev *input;
 	int error;
 	unsigned int max_xy;
+	struct regulator *reg_vdd;
 
 	dev_dbg(dev, "Probing for ILI210X I2C Touschreen driver");
 
@@ -370,6 +373,12 @@ static int ili210x_i2c_probe(struct i2c_client *client,
 		dev_err(dev, "No IRQ!\n");
 		return -EINVAL;
 	}
+
+	reg_vdd = devm_regulator_get_optional(&client->dev, "vdd");
+	if (PTR_ERR(reg_vdd) == -EPROBE_DEFER)
+		return -EPROBE_DEFER;
+
+	error = regulator_enable(reg_vdd); /* regulator is optional so ignore error */
 
 	reset_gpio = devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_HIGH);
 	if (IS_ERR(reset_gpio))
@@ -398,6 +407,7 @@ static int ili210x_i2c_probe(struct i2c_client *client,
 	priv->input = input;
 	priv->reset_gpio = reset_gpio;
 	priv->chip = chip;
+	priv->reg_vdd = reg_vdd;
 	i2c_set_clientdata(client, priv);
 
 	/* Setup input device */
