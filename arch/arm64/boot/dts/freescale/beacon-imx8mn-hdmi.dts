@@ -73,6 +73,8 @@
 		adi,dsi-lanes = <4>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_synaptics_dsx_io>;
+		interrupt-parent = <&gpio1>;
+		interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
 		#sound-dai-cells = <0>;
 		status = "okay";
 
