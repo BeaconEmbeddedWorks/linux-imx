@@ -219,12 +219,6 @@
 		>;
 	};
 
-	pinctrl_usbotg: usbotggrp {
-		fsl,pins = <
-			MX8MM_IOMUXC_GPIO1_IO10_USB1_OTG_ID     0x41
-		>;
-	};
-
 	pinctrl_pcal6414: pcal6414-gpio {
 		fsl,pins = <
 			MX8MM_IOMUXC_SAI2_MCLK_GPIO4_IO27        	0x19
@@ -517,8 +511,6 @@
 
 &usbotg1 {
 	vbus-supply = <&reg_usb_otg_vbus>;
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_usbotg>;
 	disable-over-current;
 	dr_mode="otg";
 	status = "okay";
