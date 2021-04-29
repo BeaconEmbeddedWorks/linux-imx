@@ -327,7 +327,6 @@ static int const clks_init_on[] __initconst = {
 	IMX8MN_CLK_DRAM_CORE,
 	IMX8MN_CLK_USB_BUS,
 	IMX8MN_CLK_DRAM_APB,
-	IMX8MN_CLK_UART1_ROOT,
 };
 
 static struct clk ** const uart_clks[] __initconst = {
