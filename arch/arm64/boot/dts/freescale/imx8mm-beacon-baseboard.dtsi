@@ -4,6 +4,39 @@
  */
 
 / {
+	gpio-keys {
+		compatible = "gpio-keys";
+		autorepeat;
+
+		btn0 {
+			label = "btn0";
+			linux,code = <BTN_0>;
+			gpios = <&pca6416_1 12 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+			wakeup-source;
+		};
+
+		btn1 {
+			label = "btn1";
+			linux,code = <BTN_1>;
+			gpios = <&pca6416_1 13 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+			wakeup-source;
+		};
+
+		btn2 {
+			label = "btn2";
+			linux,code = <BTN_2>;
+			gpios = <&pca6416_1 14 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+			wakeup-source;
+		};
+
+		btn3 {
+			label = "btn3";
+			linux,code = <BTN_3>;
+			gpios = <&pca6416_1 15 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+			wakeup-source;
+		};
+	};
+
 	leds {
 		compatible = "gpio-leds";
 
