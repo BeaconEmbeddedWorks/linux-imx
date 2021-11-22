@@ -108,7 +108,7 @@
 		enable-active-high;
 		gpio = <&pca6416_1 1 GPIO_ACTIVE_HIGH>;
 		vin-supply = <&reg_pcie_nclkreq>;
-		startup-delay-us = <5000000>;
+		startup-delay-us = <100000>;
 	};
 
 	reg_usb_h1_vbus: regulator-usbh1vbus {
