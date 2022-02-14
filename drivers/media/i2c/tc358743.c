@@ -81,6 +81,7 @@ struct tc358743_state {
 	struct v4l2_ctrl *detect_tx_5v_ctrl;
 	struct v4l2_ctrl *audio_sampling_rate_ctrl;
 	struct v4l2_ctrl *audio_present_ctrl;
+	struct v4l2_ctrl *link_freq;
 
 	struct delayed_work delayed_work_enable_hotplug;
 
@@ -97,6 +98,10 @@ struct tc358743_state {
 	struct gpio_desc *reset_gpio;
 
 	struct cec_adapter *cec_adap;
+};
+
+static const s64 tc358743_link_freq_menu[] = {
+	297000000,
 };
 
 static void tc358743_enable_interrupts(struct v4l2_subdev *sd,
@@ -2087,6 +2092,12 @@ static int tc358743_probe(struct i2c_client *client)
 
 	state->audio_present_ctrl = v4l2_ctrl_new_custom(&state->hdl,
 			&tc358743_ctrl_audio_present, NULL);
+
+	state->link_freq =
+		v4l2_ctrl_new_int_menu(&state->hdl, NULL,
+				       V4L2_CID_LINK_FREQ,
+				       ARRAY_SIZE(tc358743_link_freq_menu) - 1, 0,
+				       tc358743_link_freq_menu);
 
 	sd->ctrl_handler = &state->hdl;
 	if (state->hdl.error) {
