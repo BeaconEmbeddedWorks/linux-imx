@@ -2033,7 +2033,7 @@ static inline int tc358743_probe_of(struct tc358743_state *state)
 static int tc358743_probe(struct i2c_client *client)
 {
 	static struct v4l2_dv_timings default_timing =
-		V4L2_DV_BT_CEA_640X480P59_94;
+		V4L2_DV_BT_CEA_1920X1080P60;
 	struct tc358743_state *state;
 	struct tc358743_platform_data *pdata = client->dev.platform_data;
 	struct v4l2_subdev *sd;
