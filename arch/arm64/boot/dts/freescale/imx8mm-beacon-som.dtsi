@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0 OR MIT)
 /*
- * Copyright 2020 Compass Electronics Group, LLC
+ * Copyright 2021 Logic PD, Inc. DBA BeaconEmbeddedWorks
  */
 
 / {
@@ -231,6 +231,7 @@
 	rtc: rtc@51 {
 		compatible = "nxp,pcf85263";
 		reg = <0x51>;
+		quartz-load-femtofarads = <12500>;
 	};
 };
 
@@ -274,7 +275,7 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_wlan>;
 		interrupt-parent = <&gpio2>;
-		interrupts = <9 IRQ_TYPE_LEVEL_HIGH>;
+		interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
 		interrupt-names = "host-wake";
 	};
 };
@@ -456,7 +457,7 @@
 
 	pinctrl_wlan: wlangrp {
 		fsl,pins = <
-			MX8MM_IOMUXC_SD1_DATA7_GPIO2_IO9		0x111
+			MX8MM_IOMUXC_SD1_DATA7_GPIO2_IO9		0x140
 		>;
 	};
 };
