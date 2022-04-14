@@ -175,7 +175,13 @@
 };
 
 &csi1_bridge {
+	fsl,mipi-mode;
 	status = "okay";
+	port {
+		csi1_ep: endpoint {
+			remote-endpoint = <&csi1_mipi_ep>;
+		};
+	};
 };
 
 &ecspi2 {
@@ -202,26 +208,26 @@
 	pinctrl-0 = <&pinctrl_i2c2>;
 	status = "okay";
 
-	camera@3c {
-		compatible = "ovti,ov5640";
+	ov5640_mipi: ov5640_mipi@3c {
+		compatible = "ovti,ov5640_mipi";
+		reg = <0x3c>;
+		status = "okay";
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_ov5640>;
-		reg = <0x3c>;
+		AVDD-supply = <&reg_camera>;  /* 2.8v */
 		clocks = <&clk IMX8MM_CLK_CLKO1>;
-		clock-names = "xclk";
+		clock-names = "csi_mclk";
 		assigned-clocks = <&clk IMX8MM_CLK_CLKO1>;
 		assigned-clock-parents = <&clk IMX8MM_CLK_24M>;
 		assigned-clock-rates = <24000000>;
-		AVDD-supply = <&reg_camera>;  /* 2.8v */
-		powerdown-gpios = <&gpio1 7 GPIO_ACTIVE_HIGH>;
-		reset-gpios = <&gpio1 6 GPIO_ACTIVE_LOW>;
-
+		csi_id = <0>;
+		pwn-gpios = <&gpio1 7 GPIO_ACTIVE_HIGH>;
+		rst-gpios = <&gpio1 6 GPIO_ACTIVE_LOW>;
+		mclk = <24000000>;
+		mclk_source = <0>;
 		port {
-			/* MIPI CSI-2 bus endpoint */
-			ov5640_to_mipi_csi2: endpoint {
-				remote-endpoint = <&imx8mm_mipi_csi_in>;
-				clock-lanes = <0>;
-				data-lanes = <1 2>;
+			ov5640_mipi1_ep: endpoint {
+				remote-endpoint = <&mipi1_sensor_ep>;
 			};
 		};
 	};
@@ -278,13 +284,20 @@
 };
 
 &mipi_csi_1 {
+	#address-cells = <1>;
+	#size-cells = <0>;
 	status = "okay";
-	ports {
-		port@0 {
-			imx8mm_mipi_csi_in: endpoint {
-				remote-endpoint = <&ov5640_to_mipi_csi2>;
-				data-lanes = <1 2>;
-			};
+	port {
+		mipi1_sensor_ep: endpoint@1 {
+			remote-endpoint = <&ov5640_mipi1_ep>;
+			data-lanes = <2>;
+			csis-hs-settle = <13>;
+			csis-clk-settle = <2>;
+			csis-wclk;
+		};
+
+		csi1_mipi_ep: endpoint@2 {
+			remote-endpoint = <&csi1_ep>;
 		};
 	};
 };
