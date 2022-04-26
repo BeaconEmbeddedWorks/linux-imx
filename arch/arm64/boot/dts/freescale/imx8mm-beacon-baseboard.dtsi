@@ -73,14 +73,6 @@
 		clock-frequency = <100000000>;
 	};
 
-	pcie0_refclk_gated:  pcie0-refclk-gated {
-		compatible = "gpio-gate-clock";
-		clocks = <&pcie0_refclk>;
-		#clock-cells = <0>;
-		enable-gpios = <&pca6416_1 2 GPIO_ACTIVE_LOW>;
-	};
-
-
 	reg_audio: regulator-audio {
 		compatible = "regulator-fixed";
 		regulator-name = "3v3_aud";
@@ -108,6 +100,16 @@
 		enable-active-high;
 		gpio = <&pca6416_1 1 GPIO_ACTIVE_HIGH>;
 		startup-delay-us = <100000>;
+		vin-supply = <&reg_pcie_nclkreq>;
+	};
+
+	reg_pcie_nclkreq: regulator-pcie_nclkreq {
+		compatible = "regulator-fixed";
+		regulator-name = "pcie_nclkreq";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		startup-delay-us = <100000>;
+		gpio = <&pca6416_1 2 GPIO_ACTIVE_LOW>;
 	};
 
 	reg_usb_h1_vbus: regulator-usbh1vbus {
@@ -322,7 +324,7 @@
 	clocks = <&clk IMX8MM_CLK_PCIE1_ROOT>,
 		 <&clk IMX8MM_CLK_PCIE1_AUX>,
 		 <&clk IMX8MM_CLK_PCIE1_PHY>,
-		 <&pcie0_refclk_gated>;
+		 <&pcie0_refclk>;
 	clock-names = "pcie", "pcie_aux", "pcie_phy", "pcie_bus";
 	assigned-clocks = <&clk IMX8MM_CLK_PCIE1_AUX>,
 			  <&clk IMX8MM_CLK_PCIE1_PHY>,
