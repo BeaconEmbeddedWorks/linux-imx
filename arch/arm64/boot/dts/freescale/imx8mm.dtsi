@@ -1217,31 +1217,55 @@
 				};
 			};
 
-			csi1_bridge: csi1_bridge@32e20000 {
-				compatible = "fsl,imx8mm-csi", "fsl,imx8mq-csi", "fsl,imx6s-csi";
+			csi: csi@32e20000 {
+				compatible = "fsl,imx8mm-csi", "fsl,imx7-csi";
 				reg = <0x32e20000 0x1000>;
 				interrupts = <GIC_SPI 16 IRQ_TYPE_LEVEL_HIGH>;
-				clocks = <&clk IMX8MM_CLK_DISP_AXI_ROOT>,
-					<&clk IMX8MM_CLK_CSI1_ROOT>,
-					<&clk IMX8MM_CLK_DISP_APB_ROOT>;
-				clock-names = "disp-axi", "csi_mclk", "disp_dcic";
+				clocks = <&clk IMX8MM_CLK_CSI1_ROOT>;
+				clock-names = "mclk";
 				power-domains = <&dispmix_pd>;
 				status = "disabled";
+
+				port {
+					csi_in: endpoint {
+						remote-endpoint = <&imx8mm_mipi_csi_out>;
+					};
+				};
 			};
 
-			mipi_csi_1: mipi_csi@32e30000 {
-				compatible = "fsl,imx8mm-mipi-csi";
+			mipi_csi: mipi-csi@32e30000 {
+				compatible = "fsl,imx8mm-mipi-csi2";
 				reg = <0x32e30000 0x1000>;
 				interrupts = <GIC_SPI 17 IRQ_TYPE_LEVEL_HIGH>;
+				assigned-clocks = <&clk IMX8MM_CLK_CSI1_CORE>,
+						  <&clk IMX8MM_CLK_CSI1_PHY_REF>;
+				assigned-clock-parents = <&clk IMX8MM_SYS_PLL2_1000M>,
+							  <&clk IMX8MM_SYS_PLL2_1000M>;
 				clock-frequency = <333000000>;
-				clocks = <&clk IMX8MM_CLK_CSI1_CORE>,
-					<&clk IMX8MM_CLK_CSI1_PHY_REF>,
-					<&clk IMX8MM_CLK_DISP_AXI_ROOT>,
-					<&clk IMX8MM_CLK_DISP_APB_ROOT>;
-				clock-names = "mipi_clk", "phy_clk", "disp_axi", "disp_apb";
-				bus-width = <4>;
+				clocks = <&clk IMX8MM_CLK_DISP_APB_ROOT>,
+					 <&clk IMX8MM_CLK_CSI1_ROOT>,
+					 <&clk IMX8MM_CLK_CSI1_PHY_REF>,
+					 <&clk IMX8MM_CLK_DISP_AXI_ROOT>;
+				clock-names = "pclk", "wrap", "phy", "axi";
 				power-domains = <&mipi_pd>;
 				status = "disabled";
+
+				ports {
+					#address-cells = <1>;
+					#size-cells = <0>;
+
+					port@0 {
+						reg = <0>;
+					};
+
+					port@1 {
+						reg = <1>;
+
+						imx8mm_mipi_csi_out: endpoint {
+							remote-endpoint = <&csi_in>;
+						};
+					};
+				};
 			};
 
 			dispmix_gpr: display-gpr@32e28000 {
