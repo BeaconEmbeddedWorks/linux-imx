@@ -13,7 +13,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-
+#define DEBUG
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/busfreq-imx.h>
@@ -47,11 +47,6 @@ struct imx_sec_dsim_device {
 	struct clk *clk_cfg;
 	struct clk *clk_pllref;
 	struct drm_encoder encoder;
-
-	struct reset_control *soft_resetn;
-	struct reset_control *clk_enable;
-	struct reset_control *mipi_reset;
-
 	atomic_t rpm_suspended;
 
 	bool enabled;
@@ -75,18 +70,6 @@ static int imx_sec_dsim_runtime_resume(struct device *dev)
 }
 #endif
 
-static int sec_dsim_rstc_reset(struct reset_control *rstc, bool assert)
-{
-	int ret;
-
-	if (!rstc)
-		return 0;
-
-	ret = assert ? reset_control_assert(rstc)	:
-		       reset_control_deassert(rstc);
-
-	return ret;
-}
 
 static struct drm_crtc *
 imx_sec_dsim_encoder_get_new_crtc(struct drm_encoder *encoder,
@@ -132,10 +115,6 @@ imx_sec_dsim_encoder_atomic_enable(struct drm_encoder *encoder,
 
 	pm_runtime_get_sync(dsim_dev->dev);
 
-	ret = sec_dsim_rstc_reset(dsim_dev->mipi_reset, false);
-	if (ret)
-		dev_err(dsim_dev->dev, "deassert mipi_reset failed\n");
-
 	dsim_dev->enabled = true;
 }
 
@@ -161,10 +140,6 @@ imx_sec_dsim_encoder_atomic_disable(struct drm_encoder *encoder,
 disable:
 	if (!dsim_dev->enabled)
 		return;
-
-	ret = sec_dsim_rstc_reset(dsim_dev->mipi_reset, true);
-	if (ret)
-		dev_err(dsim_dev->dev, "deassert mipi_reset failed\n");
 
 	pm_runtime_put_sync(dsim_dev->dev);
 
@@ -280,75 +255,6 @@ static const struct of_device_id imx_sec_dsim_dt_ids[] = {
 };
 MODULE_DEVICE_TABLE(of, imx_sec_dsim_dt_ids);
 
-static int sec_dsim_of_parse_resets(struct imx_sec_dsim_device *dsim)
-{
-	int ret;
-	struct device *dev = dsim->dev;
-	struct device_node *np = dev->of_node;
-	struct device_node *parent, *child;
-	struct of_phandle_args args;
-	struct reset_control *rstc;
-	const char *compat;
-	uint32_t len, rstc_num = 0;
-
-	/* TODO: bypass resets for imx8mp platform */
-	compat = of_get_property(np, "compatible", NULL);
-	if (unlikely(!compat))
-		return -ENODEV;
-
-	len = strlen(compat);
-	if (!of_compat_cmp(compat, "fsl,imx8mp-mipi-dsim", len))
-		return 0;
-
-	ret = of_parse_phandle_with_args(np, "resets", "#reset-cells",
-					 0, &args);
-	if (ret)
-		return ret;
-
-	parent = args.np;
-	for_each_child_of_node(parent, child) {
-		compat = of_get_property(child, "compatible", NULL);
-		if (!compat)
-			continue;
-
-		rstc = of_reset_control_array_get(child, false, false, true);
-		if (IS_ERR(rstc))
-			continue;
-
-		len = strlen(compat);
-		if (!of_compat_cmp("dsi,soft-resetn", compat, len)) {
-			dsim->soft_resetn = rstc;
-			rstc_num++;
-		} else if (!of_compat_cmp("dsi,clk-enable", compat, len)) {
-			dsim->clk_enable = rstc;
-			rstc_num++;
-		} else if (!of_compat_cmp("dsi,mipi-reset", compat, len)) {
-			dsim->mipi_reset = rstc;
-			rstc_num++;
-		} else
-			dev_warn(dev, "invalid dsim reset node: %s\n", compat);
-	}
-
-	if (!rstc_num) {
-		dev_err(dev, "no invalid reset control exists\n");
-		return -EINVAL;
-	}
-
-	return 0;
-}
-
-static void sec_dsim_of_put_resets(struct imx_sec_dsim_device *dsim)
-{
-	if (dsim->soft_resetn)
-		reset_control_put(dsim->soft_resetn);
-
-	if (dsim->clk_enable)
-		reset_control_put(dsim->clk_enable);
-
-	if (dsim->mipi_reset)
-		reset_control_put(dsim->mipi_reset);
-}
-
 static int imx_sec_dsim_bind(struct device *dev, struct device *master,
 			     void *data)
 {
@@ -448,10 +354,6 @@ static int imx_sec_dsim_probe(struct platform_device *pdev)
 	if (IS_ERR(dsim_dev->clk_pllref))
 		return PTR_ERR(dsim_dev->clk_pllref);
 
-	ret = sec_dsim_of_parse_resets(dsim_dev);
-	if (ret)
-		return ret;
-
 	atomic_set(&dsim_dev->rpm_suspended, 1);
 
 	pm_runtime_enable(dev);
@@ -463,8 +365,6 @@ static int imx_sec_dsim_remove(struct platform_device *pdev)
 {
 	component_del(&pdev->dev, &imx_sec_dsim_ops);
 	pm_runtime_disable(&pdev->dev);
-	sec_dsim_of_put_resets(dsim_dev);
-
 	return 0;
 }
 
@@ -526,24 +426,6 @@ static int imx_sec_dsim_runtime_resume(struct device *dev)
 	ret = clk_prepare_enable(dsim_dev->clk_cfg);
 	if (WARN_ON(unlikely(ret)))
 		return ret;
-
-	ret = sec_dsim_rstc_reset(dsim_dev->soft_resetn, false);
-	if (ret) {
-		dev_err(dev, "deassert soft_resetn failed\n");
-		return ret;
-	}
-
-	ret = sec_dsim_rstc_reset(dsim_dev->clk_enable, true);
-	if (ret) {
-		dev_err(dev, "assert clk_enable failed\n");
-		return ret;
-	}
-
-	ret = sec_dsim_rstc_reset(dsim_dev->mipi_reset, false);
-	if (ret) {
-		dev_err(dev, "deassert mipi_reset failed\n");
-		return ret;
-	}
 
 	sec_mipi_dsim_resume(dev);
 

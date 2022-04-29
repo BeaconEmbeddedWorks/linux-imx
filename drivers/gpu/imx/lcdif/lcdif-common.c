@@ -37,8 +37,6 @@ struct lcdif_soc {
 
 	int irq;
 	void __iomem *base;
-	struct reset_control *soft_resetn;
-	struct reset_control *clk_enable;
 	atomic_t rpm_suspended;
 
 	struct clk *clk_pix;
@@ -90,19 +88,6 @@ static int imx_lcdif_runtime_resume(struct device *dev)
 	return 0;
 }
 #endif
-
-static int lcdif_rstc_reset(struct reset_control *rstc, bool assert)
-{
-	int ret;
-
-	if (!rstc)
-		return 0;
-
-	ret = assert ? reset_control_assert(rstc)	:
-		       reset_control_deassert(rstc);
-
-	return ret;
-}
 
 static int lcdif_enable_clocks(struct lcdif_soc *lcdif)
 {
@@ -656,55 +641,8 @@ err_register:
 	return ret;
 }
 
-static int lcdif_of_parse_resets(struct lcdif_soc *lcdif)
-{
-	int ret;
-	struct device *dev = lcdif->dev;
-	struct device_node *np = dev->of_node;
-	struct device_node *parent, *child;
-	struct of_phandle_args args;
-	struct reset_control *rstc;
-	const char *compat;
-	uint32_t len, rstc_num = 0;
-
-	ret = of_parse_phandle_with_args(np, "resets", "#reset-cells",
-					 0, &args);
-	if (ret)
-		return ret;
-
-	parent = args.np;
-	for_each_child_of_node(parent, child) {
-		compat = of_get_property(child, "compatible", NULL);
-		if (!compat)
-			continue;
-
-		rstc = of_reset_control_array_get(child, false, false, true);
-		if (IS_ERR(rstc))
-			continue;
-
-		len = strlen(compat);
-		if (!of_compat_cmp("lcdif,soft-resetn", compat, len)) {
-			lcdif->soft_resetn = rstc;
-			rstc_num++;
-		} else if (!of_compat_cmp("lcdif,clk-enable", compat, len)) {
-			lcdif->clk_enable = rstc;
-			rstc_num++;
-		}
-		else
-			dev_warn(dev, "invalid lcdif reset node: %s\n", compat);
-	}
-
-	if (!rstc_num) {
-		dev_err(dev, "no invalid reset control exists\n");
-		return -EINVAL;
-	}
-
-	return 0;
-}
-
 static int imx_lcdif_probe(struct platform_device *pdev)
 {
-	int ret;
 	struct device *dev = &pdev->dev;
 	struct lcdif_soc *lcdif;
 	struct resource *res;
@@ -742,9 +680,6 @@ static int imx_lcdif_probe(struct platform_device *pdev)
 		return PTR_ERR(lcdif->base);
 
 	lcdif->dev = dev;
-	ret = lcdif_of_parse_resets(lcdif);
-	if (ret)
-		return ret;
 
 	platform_set_drvdata(pdev, lcdif);
 
@@ -809,18 +744,6 @@ static int imx_lcdif_runtime_resume(struct device *dev)
 	ret = lcdif_enable_clocks(lcdif);
 	if (ret) {
 		release_bus_freq(BUS_FREQ_HIGH);
-		return ret;
-	}
-
-	ret = lcdif_rstc_reset(lcdif->soft_resetn, false);
-	if (ret) {
-		dev_err(dev, "deassert soft_resetn failed\n");
-		return ret;
-	}
-
-	ret = lcdif_rstc_reset(lcdif->clk_enable, true);
-	if (ret) {
-		dev_err(dev, "assert clk_enable failed\n");
 		return ret;
 	}
 
