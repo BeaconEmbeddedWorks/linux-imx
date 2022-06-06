@@ -4,6 +4,10 @@
  */
 
 / {
+	aliases {
+		rtc0 = &rtc;
+		rtc1 = &snvs_rtc;
+	};
 
 	memory@40000000 {
 		device_type = "memory";
