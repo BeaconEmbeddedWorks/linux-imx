@@ -296,7 +296,6 @@
 		regulator-max-microvolt = <5000000>;
 		gpio = <&pca6416_1 0 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
-		regulator-always-on;
 	};
 
 	sound-hdmi {
@@ -590,6 +589,15 @@
 	};
 };
 
+&gpio2 {
+	usb-reset {
+		gpio-hog;
+		gpios = <20 0>;
+		output-low;
+		line-name = "USB-C Mux En";
+	};
+};
+
 &irqsteer_hdmi {
 	status = "okay";
 };
@@ -788,7 +796,7 @@
 };
 
 &usb3_phy0 {
-	vbus-power-supply = <&ptn5110>;
+	vbus-supply = <&reg_usb1_host_vbus>;
 	fsl,phy-tx-vref-tune = <0xe>;
 	fsl,phy-tx-preemp-amp-tune = <3>;
 	fsl,phy-tx-vboost-level = <5>;
@@ -881,6 +889,7 @@
 			MX8MP_IOMUXC_HDMI_DDC_SDA__HDMIMIX_HDMI_SDA	0x400001c3
 			MX8MP_IOMUXC_HDMI_HPD__HDMIMIX_HDMI_HPD		0x40000019
 			MX8MP_IOMUXC_HDMI_CEC__HDMIMIX_HDMI_CEC		0x40000019
+			MX8MP_IOMUXC_SD2_WP__GPIO2_IO20			0x16
 		>;
 	};
 
