@@ -571,6 +571,7 @@
 		pinctrl-0 = <&pinctrl_hd3ss3220>;
 		compatible = "ti,hd3ss3220";
 		reg = <0x47>;
+		vbus-supply = <&reg_usb1_host_vbus>;
 		interrupt-parent = <&gpio4>;
 		interrupts = <19 IRQ_TYPE_LEVEL_LOW>;
 
@@ -800,7 +801,6 @@
 };
 
 &usb3_phy0 {
-	vbus-supply = <&reg_usb1_host_vbus>;
 	fsl,phy-tx-vref-tune = <0xe>;
 	fsl,phy-tx-preemp-amp-tune = <3>;
 	fsl,phy-tx-vboost-level = <5>;
