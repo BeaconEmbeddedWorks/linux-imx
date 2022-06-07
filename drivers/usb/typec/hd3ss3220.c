@@ -37,6 +37,7 @@ struct hd3ss3220 {
 	struct regmap *regmap;
 	struct usb_role_switch	*role_sw;
 	struct typec_port *port;
+	struct regulator *vbus_supply;
 };
 
 static int hd3ss3220_set_source_pref(struct hd3ss3220 *hd3ss3220, int src_pref)
@@ -99,6 +100,22 @@ static const struct typec_operations hd3ss3220_ops = {
 	.dr_set = hd3ss3220_dr_set
 };
 
+static void hd3ss3220_set_power(struct hd3ss3220 *hd3ss3220, bool enable)
+{
+	int ret;
+
+	if (!hd3ss3220->vbus_supply)
+		return;
+
+	if (enable) {
+		ret = regulator_enable(hd3ss3220->vbus_supply);
+		return;
+	}
+
+	if (regulator_is_enabled(hd3ss3220->vbus_supply))
+		regulator_disable(hd3ss3220->vbus_supply);
+}
+
 static void hd3ss3220_set_role(struct hd3ss3220 *hd3ss3220)
 {
 	enum usb_role role_state = hd3ss3220_get_attached_state(hd3ss3220);
@@ -111,11 +128,13 @@ static void hd3ss3220_set_role(struct hd3ss3220 *hd3ss3220)
 	switch (role_state) {
 	case USB_ROLE_HOST:
 		typec_set_data_role(hd3ss3220->port, TYPEC_HOST);
+		hd3ss3220_set_power(hd3ss3220, true);
 		break;
 	case USB_ROLE_DEVICE:
 		typec_set_data_role(hd3ss3220->port, TYPEC_DEVICE);
-		break;
+		fallthrough;
 	default:
+		hd3ss3220_set_power(hd3ss3220, false);
 		break;
 	}
 }
@@ -170,6 +189,14 @@ static int hd3ss3220_probe(struct i2c_client *client,
 	hd3ss3220->regmap = devm_regmap_init_i2c(client, &config);
 	if (IS_ERR(hd3ss3220->regmap))
 		return PTR_ERR(hd3ss3220->regmap);
+
+	hd3ss3220->vbus_supply = devm_regulator_get_optional(&client->dev, "vbus");
+	if (IS_ERR(hd3ss3220->vbus_supply)) {
+		ret = PTR_ERR(hd3ss3220->vbus_supply);
+		if (ret == -EPROBE_DEFER)
+			return ret;
+		hd3ss3220->vbus_supply = NULL;
+	}
 
 	hd3ss3220_set_source_pref(hd3ss3220,
 				  HD3SS3220_REG_GEN_CTRL_SRC_PREF_DRP_DEFAULT);
