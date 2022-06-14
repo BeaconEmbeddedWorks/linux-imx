@@ -300,6 +300,7 @@
 			assigned-clocks = <&clk IMX8MN_CLK_DISP_AXI_ROOT>,
 					  <&clk IMX8MN_CLK_DISP_APB_ROOT>;
 			assigned-clock-rates = <500000000>, <200000000>;
+			no-reset-control;
 			status = "disabled";
 
 			cap_device {
