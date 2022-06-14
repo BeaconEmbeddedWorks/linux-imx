@@ -340,6 +340,7 @@ struct mipi_csis_pdata {
 	struct mipi_csis_gate_clk_ops *gclk_ops;
 	struct mipi_csis_phy_ops *phy_ops;
 	bool use_mix_gpr;
+	bool no_dispmix;
 };
 
 static const struct mipi_csis_event mipi_csis_events[] = {
@@ -871,6 +872,9 @@ static int disp_mix_sft_parse_resets(struct csi_state *state)
 {
 	struct mipi_csis_pdata const *pdata = state->pdata;
 
+	if (state->pdata->no_dispmix)
+		return 0;
+
 	if (!pdata->rst_ops || !pdata->rst_ops->parse)
 		return -EINVAL;
 
@@ -881,6 +885,9 @@ static int disp_mix_sft_rstn(struct csi_state *state, bool enable)
 {
 	struct mipi_csis_pdata const *pdata = state->pdata;
 	int ret;
+
+	if (pdata->no_dispmix)
+		return 0;
 
 	if (!pdata->rst_ops ||
 	    !pdata->rst_ops->assert ||
@@ -896,6 +903,9 @@ static int disp_mix_clks_get(struct csi_state *state)
 {
 	struct mipi_csis_pdata const *pdata = state->pdata;
 
+	if (pdata->no_dispmix)
+		return 0;
+
 	if (!pdata->gclk_ops || !pdata->gclk_ops->gclk_get)
 		return -EINVAL;
 
@@ -906,6 +916,9 @@ static int disp_mix_clks_enable(struct csi_state *state, bool enable)
 {
 	struct mipi_csis_pdata const *pdata = state->pdata;
 	int ret;
+
+	if (pdata->no_dispmix)
+		return 0;
 
 	if (!pdata->gclk_ops ||
 	    !pdata->gclk_ops->gclk_enable ||
@@ -1546,6 +1559,9 @@ static int mipi_csis_imx8mn_parse_resets(struct csi_state *state)
 	const char *compat;
 	uint32_t len, rstc_num = 0;
 
+	if (state->pdata->no_dispmix)
+		return 0;
+
 	ret = of_parse_phandle_with_args(np, "resets", "#reset-cells",
 					 0, &args);
 	if (ret)
@@ -1587,6 +1603,9 @@ static int mipi_csis_imx8mn_parse_resets(struct csi_state *state)
 
 static int mipi_csis_imx8mn_resets_assert(struct csi_state *state)
 {
+	if (state->pdata->no_dispmix)
+		return 0;
+
 	if (!state->soft_resetn)
 		return -EINVAL;
 
@@ -1595,6 +1614,9 @@ static int mipi_csis_imx8mn_resets_assert(struct csi_state *state)
 
 static int mipi_csis_imx8mn_resets_deassert(struct csi_state *state)
 {
+	if (state->pdata->no_dispmix)
+		return 0;
+
 	if (!state->soft_resetn)
 		return -EINVAL;
 
@@ -1657,6 +1679,7 @@ static struct mipi_csis_pdata mipi_csis_imx8mn_pdata = {
 	.gclk_ops = &imx8mn_gclk_ops,
 	.phy_ops  = &imx8mn_phy_ops,
 	.use_mix_gpr = false,
+	.no_dispmix = true,
 };
 
 /*
