@@ -349,9 +349,15 @@
 	};
 
 	sound-micfil {
-		compatible = "fsl,imx-audio-micfil";
+		compatible = "fsl,imx-audio-card";
 		model = "imx-audio-micfil";
-		cpu-dai = <&micfil>;
+		pri-dai-link {
+			link-name = "micfil hifi";
+			format = "i2s";
+			cpu {
+				sound-dai = <&micfil>;
+			};
+		};
 	};
 
 	sound-xcvr {
@@ -669,6 +675,7 @@
 	assigned-clocks = <&clk IMX8MP_CLK_PDM>;
 	assigned-clock-parents = <&clk IMX8MP_AUDIO_PLL1_OUT>;
 	assigned-clock-rates = <196608000>;
+	#sound-dai-cells = <0>;
 	status = "okay";
 };
 
