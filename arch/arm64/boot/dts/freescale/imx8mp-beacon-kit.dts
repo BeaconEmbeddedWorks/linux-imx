@@ -386,10 +386,8 @@
 		pinctrl-0 = <&pinctrl_tpm>;
 		compatible = "infineon,slb9670";
 		reg = <0>;
-		spi-max-frequency = <38000000>;
+		spi-max-frequency = <18500000>;
 		reset-gpios = <&gpio4 0 GPIO_ACTIVE_LOW>;
-		interrupt-parent = <&gpio4>;
-		interrupts = <29 IRQ_TYPE_LEVEL_LOW>;
 	};
 };
 
