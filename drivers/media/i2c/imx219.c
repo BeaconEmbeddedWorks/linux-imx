@@ -1443,6 +1443,17 @@ error_out:
 	return ret;
 }
 
+static int imx219_link_setup(struct media_entity *entity,
+			   const struct media_pad *local,
+			   const struct media_pad *remote, u32 flags)
+{
+	return 0;
+}
+
+static const struct media_entity_operations imx219_sd_media_ops = {
+	.link_setup = imx219_link_setup,
+};
+
 static int imx219_probe(struct i2c_client *client)
 {
 	struct device *dev = &client->dev;
@@ -1523,6 +1534,7 @@ static int imx219_probe(struct i2c_client *client)
 	imx219->sd.internal_ops = &imx219_internal_ops;
 	imx219->sd.flags |= V4L2_SUBDEV_FL_HAS_DEVNODE |
 			    V4L2_SUBDEV_FL_HAS_EVENTS;
+	imx219->sd.entity.ops = &imx219_sd_media_ops;
 	imx219->sd.entity.function = MEDIA_ENT_F_CAM_SENSOR;
 
 	/* Initialize source pad */
