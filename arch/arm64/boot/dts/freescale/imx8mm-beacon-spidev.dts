@@ -33,7 +33,7 @@
 };
 
 &ecspi2 {
-	/delete-node/ at25@0;
+	/delete-node/ eeprom@0;
 
 	spidev2: spi@2 {
                compatible = "spidev";
