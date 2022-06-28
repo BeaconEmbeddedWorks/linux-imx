@@ -62,6 +62,12 @@
 		default-brightness-level = <80>;
 	};
 
+	clk_imx219: cs1-oscillator {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <24000000>;
+	};
+
 	connector {
 		compatible = "usb-c-connector";
 		label = "USB-C";
@@ -227,6 +233,19 @@
 		enable-active-high;
 	};
 
+	reg_cam0: regulator-camera0 {
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_csi0>;
+		compatible = "regulator-fixed";
+		regulator-name = "reg_cam0";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		gpio = <&gpio1 6 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		startup-delay-us = <100000>;
+		regulator-always-on;
+	};
+
 	reg_hdmi_dvdd: regulator-hdmi-dvdd {
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_hdmi>;
@@ -367,6 +386,10 @@
 	};
 };
 
+&cameradev {
+	status = "okay";
+};
+
 &easrc {
 	fsl,asrc-rate  = <48000>;
 	status = "okay";
@@ -442,6 +465,25 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_i2c2>;
 	status = "okay";
+
+	imx219_1@10 {
+		compatible = "sony,imx219";
+		reg = <0x10>;
+		clocks = <&clk_imx219>;
+		VANA-supply = <&reg_cam0>;
+		VDIG-supply = <&reg_cam0>;
+		VDDL-supply = <&reg_cam0>;
+
+		port {
+			imx219_0_ep: endpoint {
+				remote-endpoint = <&mipi_csi0_ep>;
+				data-lanes = <1 2>;
+				clock-lanes = <0>;
+				clock-noncontinuous;
+				link-frequencies = /bits/ 64 <456000000>;
+			};
+		};
+	};
 
 	pca6416_3: gpio-i2c2@20 {
                 compatible = "nxp,pcal6416";
@@ -620,6 +662,18 @@
 	status = "okay";
 };
 
+&isi_0 {
+	status = "okay";
+
+	cap_device {
+		status = "okay";
+	};
+
+	m2m_device {
+		status = "okay";
+	};
+};
+
 &lcdif1 {
 	status = "okay";
 };
@@ -656,6 +710,7 @@
 		status = "okay";
 		fsl,data-mapping = "spwg";
 		fsl,data-width = <24>;
+		status = "okay";
 
 		port@1 {
 			reg = <1>;
@@ -679,6 +734,23 @@
 	assigned-clock-rates = <196608000>;
 	#sound-dai-cells = <0>;
 	status = "okay";
+};
+
+&mipi_csi_0 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	status = "okay";
+
+	port@0 {
+		reg = <0>;
+		mipi_csi0_ep: endpoint {
+			remote-endpoint = <&imx219_0_ep>;
+			data-lanes = <2>;
+			csis-hs-settle = <13>;
+			csis-clk-settle = <2>;
+			csis-wclk;
+		};
+	};
 };
 
 &mipi_dsi {
@@ -897,6 +969,12 @@
 &iomuxc {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_hog>;
+
+	pinctrl_csi0: csi0_grp {
+		fsl,pins = <
+			MX8MP_IOMUXC_GPIO1_IO06__GPIO1_IO06	0x10
+		>;
+	};
 
 	pinctrl_hog: hoggrp {
 		fsl,pins = <
@@ -1151,14 +1229,6 @@
 	pinctrl_wm8962: wm8962grp {
 		fsl,pins = <
 			MX8MP_IOMUXC_GPIO1_IO14__CCM_CLKO1	0x59
-		>;
-	};
-
-	pinctrl_csi0: csi0grp {
-		fsl,pins = <
-			MX8MP_IOMUXC_SD1_STROBE__GPIO2_IO11	0x10
-			MX8MP_IOMUXC_GPIO1_IO06__GPIO1_IO06	0x10
-			MX8MP_IOMUXC_GPIO1_IO15__CCM_CLKO2	0x50
 		>;
 	};
 };
