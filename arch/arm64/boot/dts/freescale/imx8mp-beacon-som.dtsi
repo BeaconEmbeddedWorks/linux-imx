@@ -458,7 +458,7 @@
 
 	pinctrl_reg_wl_bt: reg_wl_btgrp {
 		fsl,pins = <
-			MX8MP_IOMUXC_SD1_DATA4__GPIO2_IO06		0x41
+			MX8MP_IOMUXC_SD1_DATA4__GPIO2_IO06		0x40
 		>;
 	};
 };
