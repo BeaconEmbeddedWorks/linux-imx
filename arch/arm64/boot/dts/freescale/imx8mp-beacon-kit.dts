@@ -1013,7 +1013,7 @@
 
 	pinctrl_pcal6414: pcal6414-gpiogrp {
 		fsl,pins = <
-			MX8MP_IOMUXC_SAI2_MCLK__GPIO4_IO27		0x19
+			MX8MP_IOMUXC_SAI2_MCLK__GPIO4_IO27	0x10
 		>;
 	};
 
