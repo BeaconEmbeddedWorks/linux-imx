@@ -1153,21 +1153,11 @@
 		>;
 	};
 
-	pinctrl_csi0_pwn: csi0_pwn_grp {
+	pinctrl_csi0: csi0grp {
 		fsl,pins = <
-			MX8MP_IOMUXC_SD1_STROBE__GPIO2_IO11	0x19
-		>;
-	};
-
-	pinctrl_csi0_rst: csi0_rst_grp {
-		fsl,pins = <
-			MX8MP_IOMUXC_GPIO1_IO06__GPIO1_IO06		0x19
-		>;
-	};
-
-	pinctrl_csi_mclk: csi_mclk_grp {
-		fsl,pins = <
-			MX8MP_IOMUXC_GPIO1_IO15__CCM_CLKO2	0x59
+			MX8MP_IOMUXC_SD1_STROBE__GPIO2_IO11	0x10
+			MX8MP_IOMUXC_GPIO1_IO06__GPIO1_IO06	0x10
+			MX8MP_IOMUXC_GPIO1_IO15__CCM_CLKO2	0x50
 		>;
 	};
 };
