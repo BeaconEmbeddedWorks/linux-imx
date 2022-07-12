@@ -853,8 +853,6 @@
 };
 
 &usb_dwc3_1 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_usb1_vbus>;
 	dr_mode = "host";
 	status = "okay";
 };
@@ -1102,12 +1100,6 @@
 			MX8MP_IOMUXC_ECSPI1_MOSI__UART3_DCE_TX		0x140
 			MX8MP_IOMUXC_ECSPI1_SS0__UART3_DCE_RTS		0x140
 			MX8MP_IOMUXC_ECSPI1_MISO__UART3_DCE_CTS		0x140
-		>;
-	};
-
-	pinctrl_usb1_vbus: usb1grp {
-		fsl,pins = <
-			MX8MP_IOMUXC_GPIO1_IO14__USB2_PWR		0x10
 		>;
 	};
 
