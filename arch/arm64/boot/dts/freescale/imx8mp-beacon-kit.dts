@@ -526,10 +526,14 @@
 	status = "okay";
 
 	wm8962: audio-codec@1a {
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_wm8962>;
 		compatible = "wlf,wm8962";
 		reg = <0x1a>;
-		clocks = <&clk IMX8MP_CLK_SAI3_ROOT>;
-		clock-names = "xclk";
+		clocks = <&clk IMX8MP_CLK_IPP_DO_CLKO1>;
+		assigned-clocks = <&clk IMX8MP_CLK_IPP_DO_CLKO1>;
+		assigned-clock-parents = <&clk IMX8MP_AUDIO_PLL2_OUT>;
+		assigned-clock-rates = <24084480>;
 		DCVDD-supply = <&reg_audio>;
 		DBVDD-supply = <&reg_audio>;
 		AVDD-supply = <&reg_audio>;
@@ -772,7 +776,6 @@
 		 <&clk IMX8MP_CLK_DUMMY>,
 		 <&clk IMX8MP_CLK_DUMMY>;
 	clock-names = "bus", "mclk0", "mclk1", "mclk2", "mclk3";
-	fsl,sai-mclk-direction-output;
 	status = "okay";
 };
 
@@ -1142,6 +1145,12 @@
 	pinctrl_usdhc2_gpio: usdhc2gpiogrp {
 		fsl,pins = <
 			MX8MP_IOMUXC_SD2_CD_B__GPIO2_IO12	0x1c4
+		>;
+	};
+
+	pinctrl_wm8962: wm8962grp {
+		fsl,pins = <
+			MX8MP_IOMUXC_GPIO1_IO14__CCM_CLKO1	0x59
 		>;
 	};
 
