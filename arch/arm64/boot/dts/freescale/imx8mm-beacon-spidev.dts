@@ -11,6 +11,8 @@
 / {
 	aliases {
 		/delete-property/ serial2;
+		spi1 = <&ecspi1>;
+		spi2 = <&ecspi2>;
 	};
 };
 
@@ -25,20 +27,20 @@
 	#address-cells = <1>;
 	#size-cells = <0>;
 
-	spidev1: spi@1 {
+	spidev1: spidev1@0 {
                compatible = "spidev";
                spi-max-frequency = <5000000>;
-               reg = <1>;
+               reg = <0>;
        };
 };
 
 &ecspi2 {
 	/delete-node/ eeprom@0;
 
-	spidev2: spi@2 {
+	spidev2: spidev2@0 {
                compatible = "spidev";
                spi-max-frequency = <5000000>;
-               reg = <2>;
+               reg = <0>;
        };
 };
 
