@@ -448,6 +448,10 @@
                 reg = <0x20>;
                 gpio-controller;
                 #gpio-cells = <2>;
+		interrupt-parent = <&gpio4>;
+		interrupts = <27 IRQ_TYPE_LEVEL_LOW>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
         };
 
 	adv_bridge: adv7535@3d {
@@ -561,6 +565,8 @@
 		#gpio-cells = <2>;
 		interrupt-parent = <&gpio4>;
 		interrupts = <27 IRQ_TYPE_LEVEL_LOW>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
 	};
 
 	pca6416_1: gpio@21 {
@@ -570,6 +576,8 @@
 		#gpio-cells = <2>;
 		interrupt-parent = <&gpio4>;
 		interrupts = <27 IRQ_TYPE_LEVEL_LOW>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
 
 		usb-reset {
 			gpio-hog;
