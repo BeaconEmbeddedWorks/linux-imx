@@ -449,10 +449,18 @@
                 gpio-controller;
                 #gpio-cells = <2>;
 		interrupt-parent = <&gpio4>;
-		interrupts = <27 IRQ_TYPE_LEVEL_LOW>;
+		interrupts = <27 IRQ_TYPE_EDGE_FALLING>;
 		interrupt-controller;
 		#interrupt-cells = <2>;
         };
+
+	touchscreen0: touchscreen-0@26 {
+		compatible = "ilitek,ili2117";
+		reg = <0x26>;
+		vdd-supply = <&reg_lcd1_reset>;
+		interrupt-parent = <&pca6416_3>;
+		interrupts = <9 IRQ_TYPE_EDGE_FALLING>;
+	};
 
 	adv_bridge: adv7535@3d {
 		compatible = "adi,adv7535";
@@ -564,7 +572,7 @@
 		gpio-controller;
 		#gpio-cells = <2>;
 		interrupt-parent = <&gpio4>;
-		interrupts = <27 IRQ_TYPE_LEVEL_LOW>;
+		interrupts = <27 IRQ_TYPE_EDGE_FALLING>;
 		interrupt-controller;
 		#interrupt-cells = <2>;
 	};
@@ -575,7 +583,7 @@
 		gpio-controller;
 		#gpio-cells = <2>;
 		interrupt-parent = <&gpio4>;
-		interrupts = <27 IRQ_TYPE_LEVEL_LOW>;
+		interrupts = <27 IRQ_TYPE_EDGE_FALLING>;
 		interrupt-controller;
 		#interrupt-cells = <2>;
 
@@ -585,6 +593,14 @@
 			output-low;
 			line-name = "USB Hub Reset";
 		};
+	};
+
+	touchscreen1: touchscreen-1@26 {
+		compatible = "ilitek,ili2117";
+		reg = <0x26>;
+		vdd-supply = <&reg_lcd1_reset>;
+		interrupt-parent = <&pca6416_3>;
+		interrupts = <10 IRQ_TYPE_EDGE_FALLING>;
 	};
 
 	hd3ss3220@47 {
