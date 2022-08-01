@@ -1,0 +1,140 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright 2022 Logic PD, Inc dba Beacon EmbeddedWorks
+ */
+
+#include "imx8mp-beacon-kit.dts"
+
+/ {
+	reg_cam0: regulator-camera0 {
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_csi0>;
+		compatible = "regulator-fixed";
+		regulator-name = "reg_cam0";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		gpio = <&gpio1 6 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		startup-delay-us = <100000>;
+		regulator-always-on;
+	};
+
+	reg_cam1: regulator-camera1 {
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_csi1>;
+		compatible = "regulator-fixed";
+		regulator-name = "reg_cam1";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		gpio = <&gpio1 7 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		startup-delay-us = <100000>;
+		regulator-always-on;
+	};
+};
+
+&i2c2 {
+	/delete-node/ov5640_mipi@3c;
+
+	basler_0: basler_camera_vvcam@36 {
+		compatible = "basler,basler-camera-vvcam", "basler-camera-vvcam";
+		reg = <0x36>;
+		csi_id = <0x00>;
+		status = "okay";
+
+		port {
+			basler_ep_0: endpoint {
+				data-lanes = <1 2 3 4>;
+				clock-lanes = <0>;
+				link-frequencies = /bits/ 64 <750000000>;
+
+				max-lane-frequency = /bits/ 64 <750000000>;
+				max-pixel-frequency = /bits/ 64 <266000000>;
+				max-data-rate = /bits/ 64 <0>;
+
+				remote-endpoint = <&mipi_csi0_ep>;
+			};
+		};
+	};
+};
+
+&i2c4 {
+	basler_1: basler_camera_vvcam@36 {
+		compatible = "basler,basler-camera-vvcam", "basler-camera-vvcam";
+		reg = <0x36>;
+		csi_id = <0x01>;
+		status = "okay";
+
+		port {
+			basler_ep_1: endpoint {
+				data-lanes = <1 2 3 4>;
+				clock-lanes = <0>;
+				link-frequencies = /bits/ 64 <750000000>;
+
+				max-lane-frequency = /bits/ 64 <750000000>;
+				max-pixel-frequency = /bits/ 64 <266000000>;
+				max-data-rate = /bits/ 64 <0>;
+
+				remote-endpoint = <&mipi_csi1_ep>;
+			};
+		};
+	};
+};
+
+&cameradev {
+	status = "okay";
+};
+
+&dewarp {
+	status = "okay";
+};
+
+&iomuxc {
+	pinctrl_csi0: csi0_grp {
+		fsl,pins = <
+			MX8MP_IOMUXC_GPIO1_IO06__GPIO1_IO06		0x19
+		>;
+	};
+
+	pinctrl_csi1: csi1_grp {
+		fsl,pins = <
+			MX8MP_IOMUXC_GPIO1_IO07__GPIO1_IO07		0x19
+		>;
+	};
+};
+
+&isp_0 {
+	status = "okay";
+};
+
+&isp_1 {
+	status = "okay";
+};
+
+&mipi_csi_0 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	status = "okay";
+
+	port@0 {
+		mipi_csi0_ep: endpoint {
+			remote-endpoint = <&basler_ep_0>;
+			data-lanes = <4>;
+			csis-hs-settle = <16>;
+		};
+	};
+};
+
+&mipi_csi_1 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	status = "okay";
+
+	port@1 {
+		mipi_csi1_ep: endpoint {
+			remote-endpoint = <&basler_ep_1>;
+			data-lanes = <4>;
+			csis-hs-settle = <16>;
+		};
+	};
+};
