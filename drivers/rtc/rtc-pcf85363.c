@@ -107,7 +107,26 @@
 
 #define NVRAM_SIZE	0x40
 
+/* Quartz capacitance */
+#define PCF85363_QUARTZCAP_7pF		0
+#define PCF85363_QUARTZCAP_6pF		1
+#define PCF85363_QUARTZCAP_12p5pF	2
+
+/* Quartz drive strength */
+#define PCF85363_QUARTZDRIVE_NORMAL	0
+#define PCF85363_QUARTZDRIVE_LOW	1
+#define PCF85363_QUARTZDRIVE_HIGH	2
+
+#define CTRL_OSCILLATOR_CL_MASK	GENMASK(1, 0)
+#define CTRL_OSCILLATOR_CL_SHIFT	0
+#define CTRL_OSCILLATOR_OSCD_MASK	GENMASK(3, 2)
+#define CTRL_OSCILLATOR_OSCD_SHIFT	2
+#define CTRL_OSCILLATOR_LOWJ		BIT(4)
+
+#define DT_SECS_OS BIT(7)
+
 struct pcf85363 {
+	struct device		*dev;
 	struct rtc_device	*rtc;
 	struct regmap		*regmap;
 };
@@ -332,6 +351,99 @@ static int pcf85x63_nvram_write(void *priv, unsigned int offset, void *val,
 				(unsigned int)tmp_val);
 }
 
+static int pcf85363_osc_is_stopped(struct pcf85363 *pcf85363)
+{
+	unsigned int regval;
+	int ret;
+
+	ret = regmap_read(pcf85363->regmap, DT_SECS, &regval);
+	if (ret)
+		return ret;
+
+	ret = regval & DT_SECS_OS ? 1 : 0;
+	if (ret)
+		dev_warn(pcf85363->dev, "Oscillator stop detected, date/time is not reliable.\n");
+
+	return ret;
+}
+
+static int pcf85363_init_hw(struct pcf85363 *pcf85363)
+{
+	struct device_node *np = pcf85363->dev->of_node;
+	unsigned int regval = 0;
+	u32 propval;
+	int ret;
+
+	/* Determine if oscilator has been stopped (probably low power) */
+	ret = pcf85363_osc_is_stopped(pcf85363);
+	if (ret < 0) {
+		/* Log here since this is the first hw access on probe */
+		dev_err(pcf85363->dev, "Unable to read register\n");
+
+		return ret;
+	}
+
+	ret = regmap_read(pcf85363->regmap, CTRL_OSCILLATOR, &regval);
+	if (ret)
+		return ret;
+
+	/* Set oscilator register */
+	propval = PCF85363_QUARTZCAP_12p5pF;
+	ret = of_property_read_u32(np, "quartz-load-femtofarads", &propval);
+	if (!ret) {
+		switch (propval) {
+		case 6000:
+			propval = PCF85363_QUARTZCAP_6pF;
+			break;
+		case 7000:
+			propval = PCF85363_QUARTZCAP_7pF;
+			break;
+		case 12500:
+			propval = PCF85363_QUARTZCAP_12p5pF;
+			break;
+		default:
+			dev_info(pcf85363->dev, "invalid quartz-load-femtofarads, \
+				use default value 12500\n");
+			break;
+		}
+	}
+
+	regval |= ((propval << CTRL_OSCILLATOR_CL_SHIFT)
+		    & CTRL_OSCILLATOR_CL_MASK);
+
+	propval = PCF85363_QUARTZDRIVE_NORMAL;
+	ret = of_property_read_u32(np, "quartz-drive-strength-ohms", &propval);
+	if (!ret) {
+		switch (propval) {
+		case 60000:
+			propval = PCF85363_QUARTZDRIVE_LOW;
+			break;
+		case 100000:
+			propval = PCF85363_QUARTZDRIVE_NORMAL;
+			break;
+		case 500000:
+			propval = PCF85363_QUARTZDRIVE_HIGH;
+			break;
+		default:
+			dev_info(pcf85363->dev, "invalid quartz-drive-strength-ohms, \
+				 use default value 100000\n");
+			break;
+		}
+	}
+	regval |= ((propval << CTRL_OSCILLATOR_OSCD_SHIFT)
+		    & CTRL_OSCILLATOR_OSCD_MASK);
+
+	if (of_property_read_bool(np, "nxp,quartz-low-jitter"))
+		regval |= CTRL_OSCILLATOR_LOWJ;
+
+	ret = regmap_write(pcf85363->regmap, CTRL_OSCILLATOR, regval);
+	if (ret) {
+		return ret;
+	}
+
+	return 0;
+}
+
 static const struct pcf85x63_config pcf_85263_config = {
 	.regmap = {
 		.reg_bits = 8,
@@ -395,6 +507,7 @@ static int pcf85363_probe(struct i2c_client *client,
 	if (IS_ERR(pcf85363->rtc))
 		return PTR_ERR(pcf85363->rtc);
 
+	pcf85363->dev = &client->dev;
 	pcf85363->rtc->ops = &rtc_ops;
 	pcf85363->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
 	pcf85363->rtc->range_max = RTC_TIMESTAMP_END_2099;
@@ -413,6 +526,10 @@ static int pcf85363_probe(struct i2c_client *client,
 		else
 			set_bit(RTC_FEATURE_ALARM, pcf85363->rtc->features);
 	}
+
+	ret = pcf85363_init_hw(pcf85363);
+	if (ret)
+		return ret;
 
 	ret = devm_rtc_register_device(pcf85363->rtc);
 
