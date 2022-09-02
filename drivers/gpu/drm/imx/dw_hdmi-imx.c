@@ -392,7 +392,14 @@ static int dw_hdmi_imx_bind(struct device *dev, struct device *master,
 
 	drm_encoder_helper_add(encoder, &dw_hdmi_imx_encoder_helper_funcs);
 
-	return drm_bridge_attach(encoder, hdmi_encoder->hdmi->bridge, NULL, 0);
+	ret = drm_bridge_attach(encoder, hdmi_encoder->hdmi->bridge, NULL, 0);
+
+	/* If drm_bridge_attach fails, remove the hdmi instance */
+	if (ret) {
+		dw_hdmi_remove(hdmi_encoder->hdmi->hdmi);
+		return -EPROBE_DEFER;
+	}
+	return 0;
 }
 
 static const struct component_ops dw_hdmi_imx_ops = {
