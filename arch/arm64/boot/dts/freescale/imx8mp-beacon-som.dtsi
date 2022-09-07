@@ -9,6 +9,11 @@
 		rtc1 = &snvs_rtc;
 	};
 
+	bt_sco_codec: bt_sco_codec {
+		#sound-dai-cells = <1>;
+		compatible = "linux,bt-sco";
+	};
+
 	memory@40000000 {
 		device_type = "memory";
 		reg = <0x0 0x40000000 0 0xc0000000>,
@@ -32,11 +37,6 @@
 		simple-audio-card,codec {
 			sound-dai = <&bt_sco_codec 1>;
 		};
-	};
-
-	bt_sco_codec: bt_sco_codec {
-		#sound-dai-cells = <1>;
-		compatible = "linux,bt-sco";
 	};
 
 	reg_wl_bt: regulator-wl-bt-pow-dwn {
@@ -69,11 +69,11 @@
 	cpu-supply = <&buck2>;
 };
 
-&dsp {
+&aud2htx {
 	status = "okay";
 };
 
-&aud2htx {
+&dsp {
 	status = "okay";
 };
 
@@ -228,11 +228,11 @@
 	};
 };
 
-&snvs_pwrkey {
+&sdma2 {
 	status = "okay";
 };
 
-&sdma2 {
+&snvs_pwrkey {
 	status = "okay";
 };
 
@@ -354,6 +354,12 @@
 		>;
 	};
 
+	pinctrl_reg_wl_bt: reg_wl_btgrp {
+		fsl,pins = <
+			MX8MP_IOMUXC_SD1_DATA4__GPIO2_IO06	0x40
+		>;
+	};
+
 	pinctrl_uart1: uart1grp {
 		fsl,pins = <
 			MX8MP_IOMUXC_UART1_RXD__UART1_DCE_RX	0x140
@@ -453,12 +459,6 @@
 	pinctrl_wlan: wlangrp {
 		fsl,pins = <
 			MX8MP_IOMUXC_SD1_DATA7__GPIO2_IO09		0x140
-		>;
-	};
-
-	pinctrl_reg_wl_bt: reg_wl_btgrp {
-		fsl,pins = <
-			MX8MP_IOMUXC_SD1_DATA4__GPIO2_IO06		0x40
 		>;
 	};
 };
