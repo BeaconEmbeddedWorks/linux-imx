@@ -315,7 +315,7 @@
 				<48000>,
 				<96000>,
 				<192000>;
-		status = "disabled";
+		status = "okay";
 	};
 
 	sound-hdmi-bridge {
@@ -323,7 +323,7 @@
 		simple-audio-card,name = "hdmi-sound";
 		simple-audio-card,format = "i2s";
 		#sound-dai-cells = <0>;
-		status = "disabled";
+		status = "okay";
 
 		simple-audio-card,cpu {
 			sound-dai = <&sai5 0>;
@@ -361,9 +361,14 @@
 	};
 
 	sound-xcvr {
-		compatible = "fsl,imx-audio-xcvr";
+		compatible = "fsl,imx-audio-card";
 		model = "imx-audio-xcvr";
-		cpu-dai = <&xcvr>;
+		pri-dai-link {
+			link-name = "XCVR PCM";
+			cpu {
+				sound-dai = <&xcvr>;
+			};
+		};
 	};
 };
 
