@@ -127,7 +127,7 @@
 
 			buck4: BUCK4 {
 				regulator-name = "BUCK4";
-				regulator-min-microvolt = <330000>;
+				regulator-min-microvolt = <3300000>;
 				regulator-max-microvolt = <3300000>;
 				regulator-boot-on;
 				regulator-always-on;
