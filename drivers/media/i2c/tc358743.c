@@ -494,6 +494,10 @@ static int tc358743_update_controls(struct v4l2_subdev *sd)
 	return ret;
 }
 
+static int tc358743_s_power(struct v4l2_subdev *sd, int on)
+{
+	return 0;
+}
 /* --------------- INIT --------------- */
 
 static void tc358743_reset_phy(struct v4l2_subdev *sd)
@@ -640,6 +644,7 @@ static void tc358743_set_csi_color_space(struct v4l2_subdev *sd)
 
 	switch (state->mbus_fmt_code) {
 	case MEDIA_BUS_FMT_UYVY8_1X16:
+	case MEDIA_BUS_FMT_UYVY8_2X8:
 		v4l2_dbg(2, debug, sd, "%s: YCbCr 422 16-bit\n", __func__);
 		i2c_wr8_and_or(sd, VOUT_SET2,
 				~(MASK_SEL422 | MASK_VOUT_422FIL_100) & 0xff,
@@ -673,11 +678,21 @@ static unsigned tc358743_num_csi_lanes_needed(struct v4l2_subdev *sd)
 	struct tc358743_state *state = to_state(sd);
 	struct v4l2_bt_timings *bt = &state->timings.bt;
 	struct tc358743_platform_data *pdata = &state->pdata;
-	u32 bits_pr_pixel =
-		(state->mbus_fmt_code == MEDIA_BUS_FMT_UYVY8_1X16) ?  16 : 24;
-	u32 bps = bt->width * bt->height * fps(bt) * bits_pr_pixel;
-	u32 bps_pr_lane = (pdata->refclk_hz / pdata->pll_prd) * pdata->pll_fbd;
+	u32 bits_pr_pixel;
+	u32 bps;
+	u32 bps_pr_lane;
 
+	switch (state->mbus_fmt_code) {
+	case MEDIA_BUS_FMT_UYVY8_1X16:
+	case MEDIA_BUS_FMT_UYVY8_2X8:
+		bits_pr_pixel = 16;
+		break;
+	default:
+		bits_pr_pixel = 24;
+		break;
+	}
+	bps = bt->width * bt->height * fps(bt) * bits_pr_pixel;
+	bps_pr_lane = (pdata->refclk_hz / pdata->pll_prd) * pdata->pll_fbd;
 	return DIV_ROUND_UP(bps, bps_pr_lane);
 }
 
@@ -1311,11 +1326,18 @@ static int tc358743_log_status(struct v4l2_subdev *sd)
 	v4l2_info(sd, "Stopped: %s\n",
 			(i2c_rd16(sd, CSI_STATUS) & MASK_S_HLT) ?
 			"yes" : "no");
-	v4l2_info(sd, "Color space: %s\n",
-			state->mbus_fmt_code == MEDIA_BUS_FMT_UYVY8_1X16 ?
-			"YCbCr 422 16-bit" :
-			state->mbus_fmt_code == MEDIA_BUS_FMT_RGB888_1X24 ?
-			"RGB 888 24-bit" : "Unsupported");
+	switch (state->mbus_fmt_code) {
+	case MEDIA_BUS_FMT_UYVY8_1X16:
+	case MEDIA_BUS_FMT_UYVY8_2X8:
+		v4l2_info(sd, "Color space: YCbCr 422 16-bit\n");
+		break;
+	case MEDIA_BUS_FMT_RGB888_1X24:
+		v4l2_info(sd, "Color space: RGB 888 24-bit\n");
+		break;
+	default:
+		v4l2_info(sd, "Color space: Unsupported\n");
+		break;
+	}
 
 	v4l2_info(sd, "-----%s status-----\n", is_hdmi(sd) ? "HDMI" : "DVI-D");
 	v4l2_info(sd, "HDCP encrypted content: %s\n",
@@ -1662,7 +1684,7 @@ static int tc358743_enum_mbus_code(struct v4l2_subdev *sd,
 		code->code = MEDIA_BUS_FMT_RGB888_1X24;
 		break;
 	case 1:
-		code->code = MEDIA_BUS_FMT_UYVY8_1X16;
+		code->code = MEDIA_BUS_FMT_UYVY8_2X8;
 		break;
 	default:
 		return -EINVAL;
@@ -1723,6 +1745,7 @@ static int tc358743_set_fmt(struct v4l2_subdev *sd,
 	switch (code) {
 	case MEDIA_BUS_FMT_RGB888_1X24:
 	case MEDIA_BUS_FMT_UYVY8_1X16:
+	case MEDIA_BUS_FMT_UYVY8_2X8:
 		break;
 	default:
 		return -EINVAL;
@@ -1836,6 +1859,7 @@ static int tc358743_link_setup(struct media_entity *entity,
 /* -------------------------------------------------------------------------- */
 
 static const struct v4l2_subdev_core_ops tc358743_core_ops = {
+	.s_power = tc358743_s_power,
 	.log_status = tc358743_log_status,
 #ifdef CONFIG_VIDEO_ADV_DEBUG
 	.g_register = tc358743_g_register,
