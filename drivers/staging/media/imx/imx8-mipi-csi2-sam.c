@@ -715,7 +715,9 @@ static void __mipi_csis_set_format(struct csi_state *state)
 
 	/* Color format */
 	val = mipi_csis_read(state, MIPI_CSIS_ISPCONFIG_CH0);
+	val &= (PIXEL_MODE_INVALID_PIXEL_MODE << MIPI_CSIS_ISPCONFIG_CH0_PIXEL_MODE_SHIFT);
 	val &= ~MIPI_CSIS_ISPCFG_FMT_MASK;
+	val &= MIPI_CSIS_ISPCFG_ALIGN_32BIT;
 	val |= state->csis_fmt->fmt_reg;
 	mipi_csis_write(state, MIPI_CSIS_ISPCONFIG_CH0, val);
 
