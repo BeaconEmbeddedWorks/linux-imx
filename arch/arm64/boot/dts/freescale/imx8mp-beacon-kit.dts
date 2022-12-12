@@ -432,6 +432,12 @@
 	};
 };
 
+&flexcan1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_flexcan1>;
+	status = "okay";
+};
+
 &gpu_3d {
 	status = "okay";
 };
@@ -1006,6 +1012,13 @@
 			MX8MP_IOMUXC_SAI1_TXD5__ENET1_RGMII_TXC	0x16
 			MX8MP_IOMUXC_SAI1_RXD0__GPIO4_IO02		0x10
 			MX8MP_IOMUXC_SAI1_TXD6__GPIO4_IO18		0x10
+		>;
+	};
+
+	pinctrl_flexcan1: flexcan1grp {
+		fsl,pins = <
+			MX8MP_IOMUXC_SPDIF_RX__CAN1_RX          0x154
+			MX8MP_IOMUXC_SPDIF_TX__CAN1_TX          0x154
 		>;
 	};
 
