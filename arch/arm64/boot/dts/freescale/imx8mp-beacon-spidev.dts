@@ -1,0 +1,21 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright 2023 Logic PD, Inc dba Beacon EmbeddedWorks
+ */
+
+/dts-v1/;
+
+#include "imx8mp-beacon-kit.dts"
+
+/* For SPIDEV, remove the node for communicating with the TPM, to use the J37 header */
+&ecspi2 {
+	cs-gpios = <&pca6416_3 2 GPIO_ACTIVE_LOW>;
+	/delete-node/ tpm_tis@0;
+
+	spidev: spidev@0 {
+		compatible = "rohm,dh2228fv";
+		reg = <0>;
+		spi-max-frequency = <18500000>;
+	};
+};
+
