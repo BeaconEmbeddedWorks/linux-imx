@@ -7,15 +7,17 @@
 
 #include "imx8mp-beacon-kit.dts"
 
-/* For SPIDEV, remove the node for communicating with the TPM, to use the J37 header */
+/* For SPIDEV, add a second node and a second chip-select */
 &ecspi2 {
-	cs-gpios = <&pca6416_3 2 GPIO_ACTIVE_LOW>;
-	/delete-node/ tpm_tis@0;
+	cs-gpios = <&gpio5 13 GPIO_ACTIVE_LOW>,
+		   <&pca6416 0 GPIO_ACTIVE_LOW>;
 
-	spidev: spidev@0 {
+	spidev: spidev@1 {
 		compatible = "rohm,dh2228fv";
-		reg = <0>;
-		spi-max-frequency = <18500000>;
+		reg = <1>;
+		spi-max-frequency = <8000000>;
+		spi-cpha;
+		spi-cpol;
 	};
 };
 
