@@ -492,6 +492,8 @@
 		reg = <0x3d>;
 		adi,addr-cec = <0x3b>;
 		adi,dsi-lanes = <4>;
+		interrupt-parent = <&gpio4>;
+		interrupts = <27 IRQ_TYPE_EDGE_FALLING>;
 		#sound-dai-cells = <0>;
 		status = "okay";
 
@@ -584,8 +586,6 @@
 	pca6416: gpio@20 {
 		compatible = "nxp,pcal6416";
 		reg = <0x20>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_pcal6414>;
 		gpio-controller;
 		#gpio-cells = <2>;
 		interrupt-parent = <&gpio4>;
@@ -939,6 +939,7 @@
 			MX8MP_IOMUXC_HDMI_HPD__HDMIMIX_HDMI_HPD		0x40000019
 			MX8MP_IOMUXC_HDMI_CEC__HDMIMIX_HDMI_CEC		0x40000019
 			MX8MP_IOMUXC_SD2_WP__GPIO2_IO20			0x16
+			MX8MP_IOMUXC_SAI2_MCLK__GPIO4_IO27		0x10
 		>;
 	};
 
@@ -1050,12 +1051,6 @@
 	pinctrl_mipi_dsi_en: mipi_dsi_en {
 		fsl,pins = <
 			MX8MP_IOMUXC_GPIO1_IO08__GPIO1_IO08	0x16
-		>;
-	};
-
-	pinctrl_pcal6414: pcal6414-gpiogrp {
-		fsl,pins = <
-			MX8MP_IOMUXC_SAI2_MCLK__GPIO4_IO27	0x10
 		>;
 	};
 
