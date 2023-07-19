@@ -67,9 +67,12 @@
 
 		ethphy0: ethernet-phy@3 {
 			compatible = "ethernet-phy-ieee802.3-c22";
+			reg = <3>;
 			interrupt-parent = <&gpio1>;
 			interrupts = <10 IRQ_TYPE_LEVEL_LOW>;
-			reg = <3>;
+			reset-gpios = <&gpio4 22 GPIO_ACTIVE_LOW>;
+			reset-assert-us = <10000>;
+			reset-deassert-us = <150000>;
 		};
 	};
 };
