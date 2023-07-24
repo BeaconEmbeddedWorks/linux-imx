@@ -847,9 +847,10 @@
 };
 
 &usb3_phy0 {
-	fsl,phy-tx-vref-tune = <0xe>;
+	fsl,phy-tx-vboost-level = <0>;
 	fsl,phy-tx-preemp-amp-tune = <3>;
-	fsl,phy-tx-vboost-level = <5>;
+	fsl,phy-tx-vref-tune = <0x08>;
+	fsl,phy-tx-rise-tune = <0>;
 	fsl,phy-comp-dis-tune = <7>;
 	fsl,pcs-tx-deemph-3p5db = <0x21>;
 	fsl,phy-pcs-tx-swing-full = <0x7f>;
@@ -880,8 +881,13 @@
 
 &usb3_phy1 {
 	vbus-power-supply = <&ptn5110>;
+	fsl,phy-tx-vboost-level = <0>;
 	fsl,phy-tx-preemp-amp-tune = <3>;
-	fsl,phy-tx-vref-tune = <0xb>;
+	fsl,phy-tx-vref-tune = <0x08>;
+	fsl,phy-tx-rise-tune = <0>;
+	fsl,phy-comp-dis-tune = <7>;
+	fsl,pcs-tx-deemph-3p5db = <0x21>;
+	fsl,phy-pcs-tx-swing-full = <0x7f>;
 	status = "okay";
 };
 
