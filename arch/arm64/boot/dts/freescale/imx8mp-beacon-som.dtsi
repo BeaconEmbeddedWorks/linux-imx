@@ -71,8 +71,8 @@
 			interrupt-parent = <&gpio1>;
 			interrupts = <10 IRQ_TYPE_LEVEL_LOW>;
 			reset-gpios = <&gpio4 22 GPIO_ACTIVE_LOW>;
-			reset-assert-us = <10000>;
-			reset-deassert-us = <150000>;
+			reset-assert-us = <1000>;
+			reset-deassert-us = <1000>;
 		};
 	};
 };
