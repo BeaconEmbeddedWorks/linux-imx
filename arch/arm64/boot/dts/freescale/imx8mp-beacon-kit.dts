@@ -6,6 +6,7 @@
 /dts-v1/;
 
 #include <dt-bindings/usb/pd.h>
+#include <dt-bindings/phy/phy-imx8-pcie.h>
 #include "imx8mp.dtsi"
 #include "imx8mp-beacon-som.dtsi"
 
@@ -20,6 +21,12 @@
 
 	chosen {
 		stdout-path = &uart2;
+	};
+
+	clk_xtal25: clock-xtal25 {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <25000000>;
 	};
 
 	backlight1: backlight-1 {
@@ -518,6 +525,13 @@
 			};
 		};
 	};
+
+	pcieclk: clock-generator@68 {
+		compatible = "renesas,9fgv0241";
+		reg = <0x68>;
+		clocks = <&clk_xtal25>;
+		#clock-cells = <1>;
+	};
 };
 
 &i2c3 {
@@ -780,8 +794,11 @@
 	status = "disabled";
 };
 
-&pcie_phy{
-	ext_osc = <1>;
+&pcie_phy {
+	fsl,clkreq-unsupported;
+	fsl,refclk-pad-mode = <IMX8_PCIE_REFCLK_PAD_INPUT>;
+	clocks = <&pcieclk 1>;
+	clock-names = "ref";
 	status = "okay";
 };
 
