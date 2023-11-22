@@ -90,10 +90,15 @@ static const int valid_clocks[] = {
 	108000,
 	78750,
 	74250,
+	71000,
 	65000,
 	49500,
 	40000,
 	31500,
+	27000,
+	25200,
+
+
 };
 
 static bool adv7511_register_volatile(struct device *dev, unsigned int reg)
