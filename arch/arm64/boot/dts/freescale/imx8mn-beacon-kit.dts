@@ -50,7 +50,7 @@
 			system-clock-direction-out;
 		};
 		simple-audio-card,codec {
-			sound-dai = <&adv_bridge 0>;
+			sound-dai = <&adv_bridge>;
 		};
 	};
 };
