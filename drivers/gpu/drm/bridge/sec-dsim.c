@@ -313,7 +313,6 @@ struct sec_mipi_dsim {
 	unsigned int channel;			/* virtual channel */
 	enum mipi_dsi_pixel_format format;
 	unsigned long mode_flags;
-	const struct dsim_hblank_par *hpar;
 	unsigned int pms;
 	unsigned int p;
 	unsigned int m;
@@ -377,46 +376,6 @@ static const struct dsim_hblank_par hblank_2lanes[] = {
 	/* {  16,  48, 96 } */
 	{ DSIM_HBLANK_PARAM("640x480"  , 60,  18,  66, 138, 2), },
 };
-
-static const struct dsim_hblank_par *sec_mipi_dsim_get_hblank_par(const char *name,
-								  int vrefresh,
-								  int lanes)
-{
-	int i, size;
-	const struct dsim_hblank_par *hpar, *hblank;
-
-	if (unlikely(!name))
-		return NULL;
-
-	switch (lanes) {
-	case 2:
-		hblank = hblank_2lanes;
-		size   = ARRAY_SIZE(hblank_2lanes);
-		break;
-	case 4:
-		hblank = hblank_4lanes;
-		size   = ARRAY_SIZE(hblank_4lanes);
-		break;
-	default:
-		pr_err("No hblank data for mode %s with %d lanes\n",
-		       name, lanes);
-		return NULL;
-	}
-
-	for (i = 0; i < size; i++) {
-		hpar = &hblank[i];
-
-		if (!strcmp(name, hpar->name)) {
-			if (vrefresh != hpar->vrefresh)
-				continue;
-
-			/* found */
-			return hpar;
-		}
-	}
-
-	return NULL;
-}
 
 static int sec_mipi_dsim_set_pref_rate(struct sec_mipi_dsim *dsim)
 {
@@ -889,19 +848,16 @@ static void sec_mipi_dsim_set_main_mode(struct sec_mipi_dsim *dsim)
 	bpp = mipi_dsi_pixel_format_to_bpp(dsim->format);
 
 	/* calculate hfp & hbp word counts */
-	if (!dsim->hpar) {
-		wc = DIV_ROUND_UP(vmode->hfront_porch * (bpp >> 3),
-				  dsim->lanes);
-		hfp_wc = wc > MIPI_HFP_PKT_OVERHEAD ?
-			 wc - MIPI_HFP_PKT_OVERHEAD : vmode->hfront_porch;
-		wc = DIV_ROUND_UP(vmode->hback_porch * (bpp >> 3),
-				  dsim->lanes);
-		hbp_wc = wc > MIPI_HBP_PKT_OVERHEAD ?
-			 wc - MIPI_HBP_PKT_OVERHEAD : vmode->hback_porch;
-	} else {
-		hfp_wc = dsim->hpar->hfp_wc;
-		hbp_wc = dsim->hpar->hbp_wc;
-	}
+
+	wc = DIV_ROUND_UP(vmode->hfront_porch * (bpp >> 3),
+			  dsim->lanes);
+	hfp_wc = wc > MIPI_HFP_PKT_OVERHEAD ?
+		 wc - MIPI_HFP_PKT_OVERHEAD : vmode->hfront_porch;
+	wc = DIV_ROUND_UP(vmode->hback_porch * (bpp >> 3),
+			  dsim->lanes);
+	hbp_wc = wc > MIPI_HBP_PKT_OVERHEAD ?
+		 wc - MIPI_HBP_PKT_OVERHEAD : vmode->hback_porch;
+	
 
 	mhporch |= MHPORCH_SET_MAINHFP(hfp_wc) |
 		   MHPORCH_SET_MAINHBP(hbp_wc);
@@ -909,13 +865,11 @@ static void sec_mipi_dsim_set_main_mode(struct sec_mipi_dsim *dsim)
 	dsim_write(dsim, mhporch, DSIM_MHPORCH);
 
 	/* calculate hsa word counts */
-	if (!dsim->hpar) {
-		wc = DIV_ROUND_UP(vmode->hsync_len * (bpp >> 3),
-				  dsim->lanes);
-		hsa_wc = wc > MIPI_HSA_PKT_OVERHEAD ?
-			 wc - MIPI_HSA_PKT_OVERHEAD : vmode->hsync_len;
-	} else
-		hsa_wc = dsim->hpar->hsa_wc;
+
+	wc = DIV_ROUND_UP(vmode->hsync_len * (bpp >> 3),
+			  dsim->lanes);
+	hsa_wc = wc > MIPI_HSA_PKT_OVERHEAD ?
+		 wc - MIPI_HSA_PKT_OVERHEAD : vmode->hsync_len;
 
 	msync |= MSYNC_SET_MAINVSA(vmode->vsync_len) |
 		 MSYNC_SET_MAINHSA(hsa_wc);
@@ -1250,7 +1204,6 @@ int sec_mipi_dsim_check_pll_out(void *driver_private,
 	uint32_t pix_clk, bit_clk;
 	struct sec_mipi_dsim *dsim = driver_private;
 	const struct sec_mipi_dsim_plat_data *pdata = dsim->pdata;
-	const struct dsim_hblank_par *hpar;
 	const struct dsim_pll_pms *pmsk;
 
 	bpp = mipi_dsi_pixel_format_to_bpp(dsim->format);
@@ -1268,7 +1221,6 @@ int sec_mipi_dsim_check_pll_out(void *driver_private,
 
 	dsim->pix_clk = pix_clk;
 	dsim->bit_clk = bit_clk;
-	dsim->hpar = NULL;
 
 	pmsk = sec_mipi_dsim_calc_pmsk(dsim);
 	if (IS_ERR(pmsk)) {
@@ -1286,15 +1238,6 @@ int sec_mipi_dsim_check_pll_out(void *driver_private,
 	 * allocated in 'sec_mipi_dsim_calc_pmsk()'.
 	 */
 	devm_kfree(dsim->dev, (void *)pmsk);
-
-	if (dsim->mode_flags & MIPI_DSI_MODE_VIDEO_SYNC_PULSE) {
-		hpar = sec_mipi_dsim_get_hblank_par(mode->name,
-						    drm_mode_vrefresh(mode),
-						    dsim->lanes);
-		dsim->hpar = hpar;
-		if (!hpar)
-			dev_dbg(dsim->dev, "no pre-exist hpar can be used\n");
-	}
 
 	return 0;
 }
@@ -1626,22 +1569,16 @@ static int sec_mipi_dsim_bridge_atomic_check(struct drm_bridge *bridge,
 	 * since the DSI device lane number change always
 	 * happens after that.
 	 */
-	if (!strcmp(adjusted_mode->name, "1280x720") &&
-	    drm_mode_vrefresh(adjusted_mode) == 60   &&
-	    dsim->lanes == 4		    &&
-	    dsim->mode_flags & MIPI_DSI_MODE_VIDEO_SYNC_PULSE) {
-		adjusted_mode->hsync_start += 2;
-		adjusted_mode->hsync_end   += 2;
-		adjusted_mode->htotal      += 2;
-	}
 
-	if (!strcmp(adjusted_mode->name, "1920x1080") &&
-	    drm_mode_vrefresh(adjusted_mode) == 24 &&
-	    dsim->lanes == 4		    &&
-	    dsim->mode_flags & MIPI_DSI_MODE_VIDEO_SYNC_PULSE) {
-		adjusted_mode->hsync_start += 2;
-		adjusted_mode->hsync_end   += 2;
-		adjusted_mode->htotal      += 2;
+	if (dsim->mode_flags & MIPI_DSI_MODE_VIDEO_SYNC_PULSE && dsim->lanes > 1) {
+		int hfp = adjusted_mode->hsync_start - adjusted_mode->hdisplay;
+		int remainder = hfp % dsim->lanes;
+
+		if (remainder) {
+			adjusted_mode->hsync_start += remainder;
+			adjusted_mode->hsync_end   += remainder;
+			adjusted_mode->htotal      += remainder;
+		}
 	}
 
 	return 0;
