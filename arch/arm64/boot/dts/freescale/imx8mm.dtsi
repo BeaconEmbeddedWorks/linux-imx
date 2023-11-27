@@ -1452,10 +1452,15 @@
 				 <&clk IMX8MM_CLK_VPU_H1_ROOT>;
 			clock-names = "g1", "g2", "h1";
 			assigned-clocks = <&clk IMX8MM_CLK_VPU_G1>,
-					  <&clk IMX8MM_CLK_VPU_G2>;
+					  <&clk IMX8MM_CLK_VPU_G2>,
+					  <&clk IMX8MM_CLK_VPU_H1>,
+					  <&clk IMX8MM_VPU_PLL_OUT>;
 			assigned-clock-parents = <&clk IMX8MM_VPU_PLL_OUT>,
+						 <&clk IMX8MM_VPU_PLL_OUT>,
 						 <&clk IMX8MM_VPU_PLL_OUT>;
 			assigned-clock-rates = <600000000>,
+					       <600000000>,
+					       <600000000>,
 					       <600000000>;
 			#power-domain-cells = <1>;
 		};
@@ -1484,9 +1489,6 @@
 		interrupt-names = "irq_hantro_h1";
 		clocks = <&clk IMX8MM_CLK_VPU_H1_ROOT>, <&clk IMX8MM_CLK_VPU_DEC_ROOT>;
 		clock-names = "clk_hantro_h1", "clk_hantro_h1_bus";
-		assigned-clocks = <&clk IMX8MM_CLK_VPU_H1>,<&clk IMX8MM_CLK_VPU_BUS>;
-		assigned-clock-parents = <&clk IMX8MM_VPU_PLL_OUT>, <&clk IMX8MM_SYS_PLL1_800M>;
-		assigned-clock-rates = <600000000>, <800000000>;
 		power-domains = <&vpu_blk_ctrl IMX8MM_VPUBLK_PD_H1>;
 		status = "disabled";
 	};
@@ -1499,9 +1501,6 @@
 		interrupt-names = "irq_hantro";
 		clocks = <&clk IMX8MM_CLK_VPU_G1_ROOT>, <&clk IMX8MM_CLK_VPU_DEC_ROOT>;
 		clock-names = "clk_hantro", "clk_hantro_bus";
-		assigned-clocks = <&clk IMX8MM_CLK_VPU_G1>, <&clk IMX8MM_CLK_VPU_BUS>;
-		assigned-clock-parents = <&clk IMX8MM_VPU_PLL_OUT>, <&clk IMX8MM_SYS_PLL1_800M>;
-		assigned-clock-rates = <600000000>, <800000000>;
 		power-domains = <&vpu_blk_ctrl IMX8MM_VPUBLK_PD_G1>;
 		status = "disabled";
 	};
@@ -1514,9 +1513,6 @@
 		interrupt-names = "irq_hantro";
 		clocks = <&clk IMX8MM_CLK_VPU_G2_ROOT>, <&clk IMX8MM_CLK_VPU_DEC_ROOT>;
 		clock-names = "clk_hantro", "clk_hantro_bus";
-		assigned-clocks = <&clk IMX8MM_CLK_VPU_G2>, <&clk IMX8MM_CLK_VPU_BUS>;
-		assigned-clock-parents = <&clk IMX8MM_VPU_PLL_OUT>, <&clk IMX8MM_SYS_PLL1_800M>;
-		assigned-clock-rates = <600000000>, <800000000>;
 		power-domains = <&vpu_blk_ctrl IMX8MM_VPUBLK_PD_G2>;
 		status = "disabled";
 	};
