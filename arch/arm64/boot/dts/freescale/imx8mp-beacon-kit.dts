@@ -877,13 +877,13 @@
 };
 
 &usb3_phy0 {
-	fsl,phy-tx-vboost-level = <0>;
+	fsl,phy-tx-vref-tune = <0xe>;
 	fsl,phy-tx-preemp-amp-tune = <3>;
-	fsl,phy-tx-vref-tune = <0x08>;
-	fsl,phy-tx-rise-tune = <0>;
+	fsl,phy-tx-vboost-level = <5>;
 	fsl,phy-comp-dis-tune = <7>;
 	fsl,pcs-tx-deemph-3p5db = <0x21>;
 	fsl,phy-pcs-tx-swing-full = <0x7f>;
+	vbus-supply = <&reg_usb1_host_vbus>;
 	status = "okay";
 };
 
@@ -897,27 +897,33 @@
 	srp-disable;
 	adp-disable;
 	usb-role-switch;
-	role-switch-default-mode = "none";
+	role-switch-default-mode = "host";
 	snps,dis-u1-entry-quirk;
 	snps,dis-u2-entry-quirk;
 	status = "okay";
 
-	port@0 {
-		usb3_drd_sw: endpoint {
-			remote-endpoint = <&hd3ss3220_out_ep>;
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@0 {
+			reg = <0>;
+			usb3_hs_ep: endpoint {
+				remote-endpoint = <&hs_ep>;
+			};
+		};
+		port@1 {
+			reg = <1>;
+			usb3_role_switch: endpoint {
+				remote-endpoint = <&hd3ss3220_out_ep>;
+			};
 		};
 	};
 };
 
 &usb3_phy1 {
-	vbus-power-supply = <&ptn5110>;
-	fsl,phy-tx-vboost-level = <0>;
 	fsl,phy-tx-preemp-amp-tune = <3>;
-	fsl,phy-tx-vref-tune = <0x08>;
-	fsl,phy-tx-rise-tune = <0>;
-	fsl,phy-comp-dis-tune = <7>;
-	fsl,pcs-tx-deemph-3p5db = <0x21>;
-	fsl,phy-pcs-tx-swing-full = <0x7f>;
+	fsl,phy-tx-vref-tune = <0xb>;
 	status = "okay";
 };
 
@@ -927,8 +933,6 @@
 
 &usb_dwc3_1 {
 	dr_mode = "host";
-	usb-role-switch;
-	role-switch-default-mode = "host";
 	status = "okay";
 };
 
