@@ -1,0 +1,23 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright 2023 Logic PD, Inc dba Beacon EmbeddedWorks
+ */
+
+/dts-v1/;
+
+#include "imx8mp-beacon-kit.dts"
+
+/* For SPIDEV, add a second node and a second chip-select */
+&ecspi2 {
+	cs-gpios = <&gpio5 13 GPIO_ACTIVE_LOW>,
+		   <&pca6416 0 GPIO_ACTIVE_LOW>;
+
+	spidev: spidev@1 {
+		compatible = "rohm,dh2228fv";
+		reg = <1>;
+		spi-max-frequency = <8000000>;
+		spi-cpha;
+		spi-cpol;
+	};
+};
+
