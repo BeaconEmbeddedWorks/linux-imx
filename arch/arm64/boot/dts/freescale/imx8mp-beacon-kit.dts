@@ -724,7 +724,7 @@
 };
 
 &ldb {
-	status = "disabled";
+	status = "okay";
 
 	lvds-channel@0 {
 		status = "okay";
