@@ -633,6 +633,7 @@
 		reg = <0x47>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_hd3ss3220>;
+		vbus-supply = <&reg_usb1_host_vbus>;
 		interrupt-parent = <&gpio4>;
 		interrupts = <19 IRQ_TYPE_EDGE_FALLING>;
 
@@ -887,7 +888,6 @@
 	fsl,phy-comp-dis-tune = <7>;
 	fsl,pcs-tx-deemph-3p5db = <0x21>;
 	fsl,phy-pcs-tx-swing-full = <0x7f>;
-	vbus-supply = <&reg_usb1_host_vbus>;
 	status = "okay";
 };
 
@@ -901,7 +901,7 @@
 	srp-disable;
 	adp-disable;
 	usb-role-switch;
-	role-switch-default-mode = "host";
+	role-switch-default-mode = "none";
 	snps,dis-u1-entry-quirk;
 	snps,dis-u2-entry-quirk;
 	status = "okay";
