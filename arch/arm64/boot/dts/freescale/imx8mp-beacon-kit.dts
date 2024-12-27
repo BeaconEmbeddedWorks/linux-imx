@@ -335,7 +335,7 @@
 		status = "okay";
 
 		simple-audio-card,cpu {
-			sound-dai = <&sai5 0>;
+			sound-dai = <&sai5>;
 			system-clock-direction-out;
 		};
 		simple-audio-card,codec {
@@ -853,6 +853,7 @@
 	assigned-clocks = <&clk IMX8MP_CLK_SAI5>;
 	assigned-clock-parents = <&clk IMX8MP_AUDIO_PLL1_OUT>;
 	assigned-clock-rates = <24576000>;
+	fsl,sai-mclk-direction-output;
 	#sound-dai-cells = <0>;
 	status = "okay";
 };
