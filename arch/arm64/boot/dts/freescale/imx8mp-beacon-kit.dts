@@ -424,6 +424,7 @@
 		reg = <0x47>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_hd3ss3220>;
+		vbus-supply = <&reg_usb1_host_vbus>;
 		interrupt-parent = <&gpio4>;
 		interrupts = <19 IRQ_TYPE_LEVEL_LOW>;
 
@@ -594,6 +595,7 @@
 	srp-disable;
 	adp-disable;
 	usb-role-switch;
+	role-switch-default-mode = "none";
 	status = "okay";
 
 	ports {
@@ -616,7 +618,6 @@
 };
 
 &usb3_phy0 {
-	vbus-supply = <&reg_usb1_host_vbus>;
 	status = "okay";
 };
 
