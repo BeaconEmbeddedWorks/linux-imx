@@ -155,6 +155,10 @@
 	};
 };
 
+&gpu {
+	status = "okay";
+};
+
 &i2c2 {
 	clock-frequency = <384000>;
 	pinctrl-names = "default";
