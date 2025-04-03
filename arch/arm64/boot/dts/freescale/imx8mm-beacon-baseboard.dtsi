@@ -139,6 +139,8 @@
 		compatible = "simple-audio-card";
 		simple-audio-card,name = "wm8962";
 		simple-audio-card,format = "i2s";
+		simple-audio-card,frame-master = <&cpudai>;
+		simple-audio-card,bitclock-master = <&cpudai>;
 		simple-audio-card,widgets = "Headphone", "Headphones",
 					    "Microphone", "Headset Mic",
 					    "Speaker", "Speaker";
@@ -149,15 +151,13 @@
 					    "Headset Mic", "MICBIAS",
 					    "IN3R", "Headset Mic";
 
-		simple-audio-card,cpu {
+		cpudai: simple-audio-card,cpu {
 			sound-dai = <&sai3>;
 		};
 
 		simple-audio-card,codec {
 			sound-dai = <&wm8962>;
 			clocks = <&clk IMX8MM_CLK_SAI3_ROOT>;
-			frame-master;
-			bitclock-master;
 		};
 	};
 };
