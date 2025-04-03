@@ -105,17 +105,6 @@
 		};
 	};
 
-	hdmi-connector {
-		compatible = "hdmi-connector";
-		type = "a";
-
-		port {
-			hdmi_connector: endpoint {
-				remote-endpoint = <&hdmi_to_connector>;
-			};
-		};
-	};
-
 	leds {
 		compatible = "gpio-leds";
 		pinctrl-names = "default";
@@ -179,8 +168,10 @@
 		compatible = "simple-audio-card";
 		simple-audio-card,name = "sound-adv7535";
 		simple-audio-card,format = "i2s";
+		simple-audio-card,bitclock-master = <&daibridge>;
+		simple-audio-card,frame-master = <&daibridge>;
 
-		simple-audio-card,cpu {
+		daibridge: simple-audio-card,cpu {
 			sound-dai = <&sai5>;
 			system-clock-direction-out;
 		};
@@ -210,6 +201,8 @@
 		compatible = "simple-audio-card";
 		simple-audio-card,name = "wm8962";
 		simple-audio-card,format = "i2s";
+		simple-audio-card,bitclock-master = <&daimaster>;
+		simple-audio-card,frame-master = <&daimaster>;
 		simple-audio-card,widgets = "Headphone", "Headphones",
 					    "Microphone", "Headset Mic",
 					    "Speaker", "Speaker";
@@ -220,21 +213,14 @@
 					    "Headset Mic", "MICBIAS",
 					    "IN3R", "Headset Mic";
 
-		simple-audio-card,cpu {
+		daimaster: simple-audio-card,cpu {
 			sound-dai = <&sai3>;
-			frame-master;
-			bitclock-master;
 		};
 
 		simple-audio-card,codec {
 			sound-dai = <&wm8962>;
 		};
 	};
-};
-
-&audio_blk_ctrl {
-	assigned-clocks = <&clk IMX8MP_AUDIO_PLL1>, <&clk IMX8MP_AUDIO_PLL2>;
-	assigned-clock-rates = <393216000>, <135475200>;
 };
 
 &ecspi2 {
@@ -251,6 +237,11 @@
 		reset-gpios = <&gpio4 0 GPIO_ACTIVE_LOW>;
 		spi-max-frequency = <18500000>;
 	};
+};
+
+&easrc {
+	fsl,asrc-rate  = <48000>;
+	status = "okay";
 };
 
 &fec {
@@ -293,23 +284,17 @@
 	};
 };
 
-&hdmi_tx {
+&hdmi_pavi {
+	status = "okay";
+};
+
+&hdmi {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_hdmi>;
 	status = "okay";
-
-	ports {
-		port@1 {
-			reg = <1>;
-
-			hdmi_to_connector:endpoint {
-				remote-endpoint = <&hdmi_connector>;
-			};
-		};
-	};
 };
 
-&hdmi_tx_phy {
+&hdmiphy {
 	status = "okay";
 };
 
@@ -353,7 +338,7 @@
 				reg = <0>;
 
 				adv7535_in: endpoint {
-					remote-endpoint = <&dsi_out>;
+					remote-endpoint = <&dsim_to_adv7535>;
 				};
 			};
 
@@ -373,10 +358,6 @@
 		clocks = <&clk_xtal25>;
 		#clock-cells = <1>;
 	};
-};
-
-&hdmi_pvi {
-	status = "okay";
 };
 
 &i2c3 {
@@ -495,6 +476,14 @@
 	};
 };
 
+&gpu_3d {
+	status = "okay";
+};
+
+&gpu_2d {
+	status = "okay";
+};
+
 &lcdif1 {
 	status = "okay";
 };
@@ -513,18 +502,22 @@
 };
 
 &mipi_dsi {
-	samsung,esc-clock-frequency = <10000000>;
 	status = "okay";
 
-	ports {
-		port@1 {
-			reg = <1>;
-
-			dsi_out: endpoint {
-				remote-endpoint = <&adv7535_in>;
-			};
+	port@1 {
+		dsim_to_adv7535: endpoint {
+			remote-endpoint = <&adv7535_in>;
+			attach-bridge;
 		};
 	};
+};
+
+&mix_gpu_ml {
+	status = "okay";
+};
+
+&ml_vipsi {
+	status = "okay";
 };
 
 &pcie {
@@ -548,18 +541,27 @@
 	assigned-clocks = <&clk IMX8MP_CLK_SAI3>;
 	assigned-clock-parents = <&clk IMX8MP_AUDIO_PLL1_OUT>;
 	assigned-clock-rates = <12288000>;
+	clocks = <&audio_blk_ctrl IMX8MP_CLK_AUDIOMIX_SAI3_IPG>, <&clk IMX8MP_CLK_DUMMY>,
+		 <&audio_blk_ctrl IMX8MP_CLK_AUDIOMIX_SAI3_MCLK1>, <&clk IMX8MP_CLK_DUMMY>,
+		 <&clk IMX8MP_CLK_DUMMY>;
+	clock-names = "bus", "mclk0", "mclk1", "mclk2", "mclk3";
 	fsl,sai-mclk-direction-output;
 	status = "okay";
 };
 
 &sai5 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_sai5>;
-	assigned-clocks = <&clk IMX8MP_CLK_SAI5>;
-	assigned-clock-parents = <&clk IMX8MP_AUDIO_PLL1_OUT>;
-	assigned-clock-rates = <12288000>;
-	fsl,sai-mclk-direction-output;
-	status = "okay";
+        #sound-dai-cells = <0>;
+        pinctrl-names = "default";
+        pinctrl-0 = <&pinctrl_sai5>;
+        assigned-clocks = <&clk IMX8MP_CLK_SAI5>;
+        assigned-clock-parents = <&clk IMX8MP_AUDIO_PLL1_OUT>;
+        assigned-clock-rates = <24576000>;
+        clocks = <&audio_blk_ctrl IMX8MP_CLK_AUDIOMIX_SAI5_IPG>, <&clk IMX8MP_CLK_DUMMY>,
+                <&audio_blk_ctrl IMX8MP_CLK_AUDIOMIX_SAI5_MCLK1>, <&clk IMX8MP_CLK_DUMMY>,
+                <&clk IMX8MP_CLK_DUMMY>, <&clk IMX8MP_AUDIO_PLL1_OUT>,
+                <&clk IMX8MP_AUDIO_PLL2_OUT>;
+        clock-names = "bus", "mclk0", "mclk1", "mclk2", "mclk3", "pll8k", "pll11k";
+        status = "okay";
 };
 
 &snvs_pwrkey {
@@ -638,6 +640,18 @@
 	cd-gpios = <&gpio2 12 GPIO_ACTIVE_LOW>;
 	vmmc-supply = <&reg_usdhc2_vmmc>;
 	bus-width = <4>;
+	status = "okay";
+};
+
+&vpu_g1 {
+	status = "okay";
+};
+
+&vpu_g2 {
+	status = "okay";
+};
+
+&vpu_vc8000e {
 	status = "okay";
 };
 

@@ -260,6 +260,10 @@
 	};
 };
 
+&sdma2 {
+	status = "okay";
+};
+
 &snvs_pwrkey {
 	status = "okay";
 };
