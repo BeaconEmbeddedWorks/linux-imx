@@ -29,32 +29,6 @@
 		clock-frequency = <25000000>;
 	};
 
-	connector {
-		compatible = "usb-c-connector";
-		label = "USB-C";
-		data-role = "dual";
-
-		ports {
-			#address-cells = <1>;
-			#size-cells = <0>;
-
-			port@0 {
-				reg = <0>;
-
-				hs_ep: endpoint {
-					remote-endpoint = <&usb3_hs_ep>;
-				};
-			};
-			port@1 {
-				reg = <1>;
-
-				ss_ep: endpoint {
-					remote-endpoint = <&hd3ss3220_in_ep>;
-				};
-			};
-		};
-	};
-
 	dmic_codec: dmic-codec {
 		compatible = "dmic-codec";
 		num-channels = <1>;
@@ -452,6 +426,32 @@
 		pinctrl-0 = <&pinctrl_hd3ss3220>;
 		interrupt-parent = <&gpio4>;
 		interrupts = <19 IRQ_TYPE_LEVEL_LOW>;
+
+		connector {
+			compatible = "usb-c-connector";
+			label = "USB-C";
+			data-role = "dual";
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				port@0 {
+					reg = <0>;
+
+					hs_ep: endpoint {
+						remote-endpoint = <&usb3_hs_ep>;
+					};
+				};
+				port@1 {
+					reg = <1>;
+
+					ss_ep: endpoint {
+						remote-endpoint = <&hd3ss3220_in_ep>;
+					};
+				};
+			};
+		};
 
 		ports {
 			#address-cells = <1>;
