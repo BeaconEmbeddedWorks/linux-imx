@@ -19,15 +19,19 @@
 
 	backlight: backlight-lvds {
 		compatible = "pwm-backlight";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_backlight>;
 		pwms = <&pwm1 0 20000 0>;
-		brightness-levels = <0 4 8 16 32 64 128 255>;
-		default-brightness-level = <6>;
-		power-supply = <&reg_lcd_reset>;
+		brightness-levels = <0 255>;
+		num-interpolated-steps = <255>;
+		default-brightness-level = <250>;
+		power-supply = <&reg_lcd>;
+		enable-gpios = <&gpio1 15 GPIO_ACTIVE_HIGH>;
 	};
 
 	lvds {
 		compatible = "panel-lvds";
-		power-supply = <&reg_lcd_reset>;
+		power-supply = <&reg_lcd>;
 		width-mm = <223>;
 		height-mm = <125>;
 		backlight = <&backlight>;
@@ -67,18 +71,6 @@
 		gpio = <&gpio1 8 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 	};
-
-	reg_lcd_reset: regulator-lcd-reset {
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_lcd_rst>;
-		compatible = "regulator-fixed";
-		regulator-name = "nLCD_RESET";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-		gpio = <&gpio1 15 GPIO_ACTIVE_HIGH>;
-		enable-active-high;
-		vin-supply = <&reg_lcd>;
-	};
 };
 
 &gpu {
@@ -91,7 +83,7 @@
 		reg = <0x26>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_touchscreen>;
-		vdd-supply = <&reg_lcd_reset>;
+		vdd-supply = <&reg_lcd>;
 		interrupt-parent = <&gpio1>;
 		interrupts = <9 IRQ_TYPE_EDGE_RISING>;
 	};
@@ -150,13 +142,19 @@
 };
 
 &iomuxc {
+	pinctrl_backlight: backlightgrp {
+		fsl,pins = <
+			MX8MN_IOMUXC_GPIO1_IO15_GPIO1_IO15		0x16
+		>;
+	};
+
 	pinctrl_lcd_reg: lcd_reggrp {
 		fsl,pins = <
 			MX8MN_IOMUXC_GPIO1_IO08_GPIO1_IO8		0x16
 		>;
 	};
 
-	pinctrl_lcd_rst: lcd_rstgrp {
+	pinctrl_backlight: backlightgrp {
 		fsl,pins = <
 			MX8MN_IOMUXC_GPIO1_IO15_GPIO1_IO15		0x16
 		>;
