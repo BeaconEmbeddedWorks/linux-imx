@@ -19,6 +19,16 @@
 		ethernet1 = &fec;
 	};
 
+	backlight1: backlight1 {
+		compatible = "pwm-backlight";
+		pwms = <&pwm2 0 100000 0>;
+		power-supply = <&reg_lcd1>;
+		enable-gpios = <&pca6416_3 13 GPIO_ACTIVE_HIGH>;
+		brightness-levels = <0 100>;
+		num-interpolated-steps = <100>;
+		default-brightness-level = <80>;
+	};
+
 	chosen {
 		stdout-path = &uart2;
 	};
@@ -109,12 +119,55 @@
 		};
 	};
 
+	lvds-1 {
+		compatible = "panel-lvds";
+		power-supply = <&reg_lcd1>;
+		width-mm = <223>;
+		height-mm = <125>;
+		backlight = <&backlight1>;
+		data-mapping = "vesa-24";
+
+		panel-timing {
+			/* 800x480@60Hz */
+			clock-frequency = <30000000>;
+			hactive = <800>;
+			vactive = <480>;
+			hsync-len = <48>;
+			hfront-porch = <40>;
+			hback-porch = <40>;
+			vfront-porch = <13>;
+			vback-porch = <29>;
+			vsync-len = <1>;
+			hsync-active = <1>;
+			vsync-active = <3>;
+			de-active = <1>;
+			pixelclk-active = <0>;
+		};
+
+		port {
+			panel1_in: endpoint {
+				remote-endpoint = <&lvds1_out>;
+			};
+		};
+	};
+
 	reg_audio: regulator-wm8962 {
 		compatible = "regulator-fixed";
 		regulator-name = "3v3_aud";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		gpio = <&pca6416_1 11 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+
+
+	reg_lcd1: regulator-lcd1 {
+		compatible = "regulator-fixed";
+		regulator-name = "lvds-1 power";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&pca6416_3 14 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 	};
 
@@ -419,6 +472,14 @@
 		};
 	};
 
+	touchscreen1: touchscreen-1@26 {
+		compatible = "ilitek,ili2117";
+		reg = <0x26>;
+		vdd-supply = <&reg_lcd1>;
+		interrupt-parent = <&pca6416_3>;
+		interrupts = <10 IRQ_TYPE_EDGE_FALLING>;
+	};
+
 	usb-typec@47 {
 		compatible = "ti,hd3ss3220";
 		reg = <0x47>;
@@ -495,6 +556,32 @@
 	status = "okay";
 };
 
+&lcdif2 {
+	status = "okay";
+};
+
+&ldb {
+	status = "okay";
+
+	lvds-channel@1 {
+		status = "okay";
+		fsl,data-mapping = "spwg";
+		fsl,data-width = <24>;
+
+		port@1 {
+			reg = <1>;
+
+			lvds1_out: endpoint {
+				remote-endpoint = <&panel1_in>;
+			};
+		};
+	};
+};
+
+&ldb_phy {
+	status = "okay";
+};
+
 &micfil {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pdm>;
@@ -536,6 +623,12 @@
 	clocks = <&pcieclk 1>;
 	clock-names = "ref";
 	status = "okay";
+};
+
+&pwm2 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_pwm2>;
 };
 
 &sai3 {
@@ -660,6 +753,13 @@
 };
 
 &iomuxc {
+
+	pinctrl_pwm2: pwm2grp {
+		fsl,pins = <
+			MX8MP_IOMUXC_GPIO1_IO09__PWM2_OUT	0x116
+		>;
+	};
+
 	pinctrl_ecspi2: ecspi2grp {
 		fsl,pins = <
 			MX8MP_IOMUXC_ECSPI2_SCLK__ECSPI2_SCLK	0x82
