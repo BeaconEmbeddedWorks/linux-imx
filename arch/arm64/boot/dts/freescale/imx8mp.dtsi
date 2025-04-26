@@ -2327,6 +2327,8 @@
 			reg = <1>;
 			phys = <&ldb_phy2>;
 			phy-names = "ldb_phy";
+			#address-cells = <1>;
+			#size-cells = <0>;
 			status = "disabled";
 
 			port {
