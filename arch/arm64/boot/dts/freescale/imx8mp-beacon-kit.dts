@@ -19,6 +19,18 @@
 		ethernet1 = &fec;
 	};
 
+	backlight0: backlight0 {
+		compatible = "pwm-backlight";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_backlight0>;
+		pwms = <&pwm1 0 100000 0>;
+		power-supply = <&reg_lcd0>;
+		enable-gpios = <&gpio1 15 GPIO_ACTIVE_HIGH>;
+		brightness-levels = <0 100>;
+		num-interpolated-steps = <100>;
+		default-brightness-level = <80>;
+	};
+
 	backlight1: backlight1 {
 		compatible = "pwm-backlight";
 		pwms = <&pwm2 0 100000 0>;
@@ -119,6 +131,38 @@
 		};
 	};
 
+	lvds-0 {
+		compatible = "panel-lvds";
+		power-supply = <&reg_lcd0>;
+		width-mm = <223>;
+		height-mm = <125>;
+		backlight = <&backlight0>;
+		data-mapping = "vesa-24";
+
+		panel-timing {
+			/* 800x480@60Hz */
+			clock-frequency = <30000000>;
+			hactive = <800>;
+			vactive = <480>;
+			hsync-len = <48>;
+			hfront-porch = <40>;
+			hback-porch = <40>;
+			vfront-porch = <13>;
+			vback-porch = <29>;
+			vsync-len = <1>;
+			hsync-active = <1>;
+			vsync-active = <3>;
+			de-active = <1>;
+			pixelclk-active = <0>;
+		};
+
+		port {
+			panel0_in: endpoint {
+				remote-endpoint = <&lvds0_out>;
+			};
+		};
+	};
+
 	lvds-1 {
 		compatible = "panel-lvds";
 		power-supply = <&reg_lcd1>;
@@ -160,7 +204,17 @@
 		enable-active-high;
 	};
 
+	reg_lcd0: regulator-lcd0 {
+		compatible = "regulator-fixed";
+		pinctrl-names = "default";
+                pinctrl-0 = <&pinctrl_lcd0_reg>;
+                regulator-name = "lcd_regulator";
+                regulator-min-microvolt = <3300000>;
+                regulator-max-microvolt = <3300000>;
+                gpio = <&gpio1 8 GPIO_ACTIVE_HIGH>;
+                enable-active-high;
 
+	};
 
 	reg_lcd1: regulator-lcd1 {
 		compatible = "regulator-fixed";
@@ -340,6 +394,14 @@
 		interrupts = <27 IRQ_TYPE_EDGE_FALLING>;
 		interrupt-controller;
 		#interrupt-cells = <2>;
+	};
+
+	touchscreen0: touchscreen-0@26 {
+		compatible = "ilitek,ili2117";
+		reg = <0x26>;
+		vdd-supply = <&reg_lcd0>;
+		interrupt-parent = <&pca6416_3>;
+		interrupts = <9 IRQ_TYPE_EDGE_FALLING>;
 	};
 
 	adv_bridge: hdmi@3d {
@@ -563,6 +625,20 @@
 &ldb {
 	status = "okay";
 
+	lvds-channel@0 {
+		status = "okay";
+		fsl,data-mapping = "spwg";
+		fsl,data-width = <24>;
+
+		port@1 {
+			reg = <1>;
+
+			lvds0_out: endpoint {
+				remote-endpoint = <&panel0_in>;
+			};
+		};
+	};
+
 	lvds-channel@1 {
 		status = "okay";
 		fsl,data-mapping = "spwg";
@@ -623,6 +699,12 @@
 	clocks = <&pcieclk 1>;
 	clock-names = "ref";
 	status = "okay";
+};
+
+&pwm1 {
+        status = "okay";
+        pinctrl-names = "default";
+        pinctrl-0 = <&pinctrl_pwm1>;
 };
 
 &pwm2 {
@@ -754,6 +836,12 @@
 
 &iomuxc {
 
+	pinctrl_backlight0: backlight0grp {
+		fsl,pins = <
+			MX8MP_IOMUXC_GPIO1_IO15__GPIO1_IO15		0x16
+		>;
+	};
+
 	pinctrl_pwm2: pwm2grp {
 		fsl,pins = <
 			MX8MP_IOMUXC_GPIO1_IO09__PWM2_OUT	0x116
@@ -826,6 +914,12 @@
 		>;
 	};
 
+	pinctrl_lcd0_reg: lcd_reggrp {
+		fsl,pins = <
+			MX8MP_IOMUXC_GPIO1_IO08__GPIO1_IO08		0x16
+		>;
+	};
+
 	pinctrl_led3: led3grp {
 		fsl,pins = <
 			MX8MP_IOMUXC_SAI3_RXFS__GPIO4_IO28	0x41
@@ -849,6 +943,12 @@
 		fsl,pins = <
 			MX8MP_IOMUXC_SAI5_RXC__AUDIOMIX_PDM_CLK		0xd6
 			MX8MP_IOMUXC_SAI5_RXD0__AUDIOMIX_PDM_BIT_STREAM00	0xd6
+		>;
+	};
+
+	pinctrl_pwm1: pwm1grp {
+		fsl,pins = <
+			MX8MP_IOMUXC_GPIO1_IO01__PWM1_OUT	0x116
 		>;
 	};
 
