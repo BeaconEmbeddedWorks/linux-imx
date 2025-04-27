@@ -278,6 +278,13 @@
 		};
 	};
 
+	sound-hdmi {
+		compatible = "fsl,imx-audio-hdmi";
+		model = "audio-hdmi";
+		audio-cpu = <&aud2htx>;
+		hdmi-out;
+	};
+
 	sound-wm8962 {
 		compatible = "simple-audio-card";
 		simple-audio-card,name = "wm8962";
@@ -302,6 +309,23 @@
 			sound-dai = <&wm8962>;
 		};
 	};
+
+	sound-xcvr {
+		compatible = "fsl,imx-audio-card";
+		model = "imx-audio-xcvr";
+
+		pri-dai-link {
+			link-name = "XCVR PCM";
+
+			cpu {
+				sound-dai = <&xcvr>;
+			};
+		};
+	};
+};
+
+&aud2htx {
+	status = "okay";
 };
 
 &ecspi2 {
@@ -831,6 +855,11 @@
 };
 
 &vpu_vc8000e {
+	status = "okay";
+};
+
+&xcvr {
+	#sound-dai-cells = <0>;
 	status = "okay";
 };
 
