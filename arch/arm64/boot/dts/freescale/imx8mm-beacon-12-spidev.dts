@@ -1,0 +1,13 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Copyright 2025 Logic PD, Inc. DBA BeaconEmbeddedWorks
+ */
+
+/dts-v1/;
+
+#include "imx8mm-beacon-kit-12.dts"
+#include "imx8mm-beacon-spidev.dtsi"
+
+/ {
+        model = "Beacon EmbeddedWorks i.MX8M Mini Development Kit-12 (spidev)";
+};
