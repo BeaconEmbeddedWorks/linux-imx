@@ -6,12 +6,12 @@
 /dts-v1/;
 
 #include "imx8mm.dtsi"
-#include "imx8mm-beacon-som.dtsi"
+#include "imx8mm-beacon-som-12.dtsi"
 #include "imx8mm-beacon-baseboard.dtsi"
 #include "imx8mm-beacon-lvds.dtsi"
 
 / {
-	model = "Beacon EmbeddedWorks i.MX8M Mini Development Kit (LVDS)";
+	model = "Beacon EmbeddedWorks i.MX8M Mini Development Kit-12 (LVDS)";
 	compatible = "beacon,imx8mm-beacon-kit", "fsl,imx8mm";
 
 	chosen {
