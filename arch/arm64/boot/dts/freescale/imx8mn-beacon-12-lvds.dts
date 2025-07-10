@@ -6,7 +6,7 @@
 /dts-v1/;
 
 #include "imx8mn.dtsi"
-#include "imx8mn-beacon-som.dtsi"
+#include "imx8mn-beacon-som-12.dtsi"
 #include "imx8mn-beacon-baseboard.dtsi"
 #include "imx8mn-beacon-lvds.dtsi"
 
