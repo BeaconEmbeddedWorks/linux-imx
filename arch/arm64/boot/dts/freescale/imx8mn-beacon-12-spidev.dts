@@ -5,7 +5,7 @@
 
 /dts-v1/;
 
-#include "imx8mn-beacon-12.dts"
+#include "imx8mn-beacon-12-kit.dts"
 #include "imx8mn-beacon-spidev.dtsi"
 
 / {
