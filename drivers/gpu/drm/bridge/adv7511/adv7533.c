@@ -26,8 +26,10 @@ static const struct reg_sequence adv7533_cec_fixed_registers[] = {
 
 static void adv7511_dsi_config_timing_gen(struct adv7511 *adv)
 {
+	struct mipi_dsi_device *dsi = adv->dsi;
 	struct drm_display_mode *mode = &adv->curr_mode;
 	unsigned int hsw, hfp, hbp, vsw, vfp, vbp;
+	static const u8 clock_div_by_lanes[] = { 6, 4, 3 };	/* 2, 3, 4 lanes */
 
 	hsw = mode->hsync_end - mode->hsync_start;
 	hfp = mode->hsync_start - mode->hdisplay;
@@ -36,10 +38,9 @@ static void adv7511_dsi_config_timing_gen(struct adv7511 *adv)
 	vfp = mode->vsync_start - mode->vdisplay;
 	vbp = mode->vtotal - mode->vsync_end;
 
-	/* 03-01 Enable Internal Timing Generator */
-	regmap_write(adv->regmap_cec, 0x27, 0xcb);
-
-	/* 03-08 Timing Configuration */
+	/* set pixel clock divider mode */
+	regmap_write(adv->regmap_cec, 0x16,
+		     clock_div_by_lanes[dsi->lanes - 2] << 3);
 
 	/* horizontal porch params */
 	regmap_write(adv->regmap_cec, 0x28, mode->htotal >> 4);
@@ -60,12 +61,6 @@ static void adv7511_dsi_config_timing_gen(struct adv7511 *adv)
 	regmap_write(adv->regmap_cec, 0x35, (vfp << 4) & 0xff);
 	regmap_write(adv->regmap_cec, 0x36, vbp >> 4);
 	regmap_write(adv->regmap_cec, 0x37, (vbp << 4) & 0xff);
-
-	/* 03-03 Reset Internal Timing Generator */
-	regmap_write(adv->regmap_cec, 0x27, 0xcb);
-	regmap_write(adv->regmap_cec, 0x27, 0x8b);
-	regmap_write(adv->regmap_cec, 0x27, 0xcb);
-
 }
 
 void adv7533_dsi_power_on(struct adv7511 *adv)
