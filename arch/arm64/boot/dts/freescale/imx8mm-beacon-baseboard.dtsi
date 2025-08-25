@@ -82,13 +82,6 @@
 		clock-frequency = <100000000>;
 	};
 
-	pcie0_refclk_gated:  pcie0-refclk-gated {
-		compatible = "gpio-gate-clock";
-		clocks = <&pcie0_refclk>;
-		#clock-cells = <0>;
-		enable-gpios = <&pca6416_1 2 GPIO_ACTIVE_LOW>;
-	};
-
 	reg_1v5: regulator-1v5 {
 		compatible = "regulator-fixed";
 		regulator-name = "1V5";
@@ -314,6 +307,13 @@
 		#gpio-cells = <2>;
 		interrupt-parent = <&gpio4>;
 		interrupts = <27 IRQ_TYPE_LEVEL_LOW>;
+
+		pcie-clk-enable-hog {
+                        gpio-hog;
+                        gpios = <2 GPIO_ACTIVE_LOW>;
+                        output-low;
+                };
+
 	};
 };
 
@@ -343,7 +343,7 @@
 	fsl,tx-deemph-gen1 = <0x2d>;
 	fsl,tx-deemph-gen2 = <0xf>;
 	fsl,clkreq-unsupported;
-	clocks = <&pcie0_refclk_gated>;
+	clocks = <&pcie0_refclk>;
 	clock-names = "ref";
 	status = "okay";
 };
@@ -352,7 +352,7 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pcie0>;
 	reset-gpio = <&gpio4 21 GPIO_ACTIVE_LOW>;
-	clocks = <&clk IMX8MM_CLK_PCIE1_ROOT>, <&pcie0_refclk_gated>,
+	clocks = <&clk IMX8MM_CLK_PCIE1_ROOT>, <&pcie0_refclk>,
 		 <&clk IMX8MM_CLK_PCIE1_AUX>;
 	assigned-clocks = <&clk IMX8MM_CLK_PCIE1_AUX>,
 			  <&clk IMX8MM_CLK_PCIE1_CTRL>;
