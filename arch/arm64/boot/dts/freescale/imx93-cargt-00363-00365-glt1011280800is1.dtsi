@@ -1,0 +1,154 @@
+ / {
+ 
+	pwm_backlight: pwm_backlight {
+		compatible = "pwm-backlight";
+		pwms = <&tpm3 3 5000000 0>; // 200 Hz
+		brightness-levels = <0 100>;
+		num-interpolated-steps = <100>;
+		default-brightness-level = <80>;
+		status = "okay";
+	};
+	
+	gpio_backlight: gpio_backlight {
+		compatible = "gpio-backlight";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_backlight_gpio>;
+		gpios = <&gpio2 24 GPIO_ACTIVE_HIGH>;
+		default-on;
+		status = "disabled";
+	};
+
+	reg_lvds_i2c_switch: regulator-lvds-i2c-switch {
+		compatible = "regulator-fixed";
+		regulator-name = "lvds_i2c_sw";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		gpio = <&pca9555_20 15 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		regulator-always-on;
+		status = "okay";
+	};	
+
+	reg_lvds_vdd: regulator-lvds-vdd {
+		compatible = "regulator-fixed";
+		regulator-name = "lvds_vdd";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&pca9555_20 5 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		regulator-always-on;
+		vin-supply = <&reg_lvds_i2c_switch>;
+		status = "okay";
+	};
+
+	lvds_panel {
+		compatible = "boe,ev121wxm-n10-1850";
+		backlight = <&pwm_backlight>;		
+		power-supply = <&DISPLAY_reg>;
+
+		port {
+			panel_lvds_in: endpoint {
+				remote-endpoint = <&lvds_out>;
+			};
+		};
+	};
+  };
+ 
+&tpm3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_backlight_pwm>;
+	status = "okay";
+ };
+ 
+ &dphy {
+	 status = "disabled";
+ };
+ 
+ &dsi {
+	 status = "disabled";
+ };
+ 
+ &lcdif {
+	assigned-clock-rates = <498000000>, <71142857>, <400000000>, <133333333>;
+	status = "okay";
+ };
+ 
+ &ldb {
+	 status = "okay";
+ 
+	 lvds-channel@0 {
+		 status = "okay";
+ 
+		 port@1 {
+			 reg = <1>;
+ 
+			 lvds_out: endpoint {
+				 remote-endpoint = <&panel_lvds_in>;
+			 };
+		 };
+	 };
+ };
+ 
+ &ldb_phy {
+	 status = "okay";
+ };
+ 
+ &lpi2c3 {
+	touchscreen@41 {
+		compatible = "ilitek,ili251x";
+		reg = <0x41>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_cap_touch>;
+		interrupt-parent = <&gpio1>;
+		interrupts = <12 IRQ_TYPE_EDGE_FALLING>;
+		reset-gpios = <&pca9555_20 6 GPIO_ACTIVE_LOW>;
+		status = "okay";
+	};
+
+	/* eeprom on display */
+	eeprom@54 {
+		compatible = "atmel,24c02";
+		reg = <0x54>;
+		pagesize = <16>;		
+	};
+
+	max25221: max25221@21 {
+		compatible = "maxim,max25221";
+		reg = <0x21>;
+		lcd-supply = <&reg_lvds_vdd>;
+		status = "okay";
+
+		regulators {
+			DISPLAY_reg: DISPLAY {
+				regulator-name = "DISPLAY";
+			};
+		};
+	};
+ };
+ 
+ 
+ 
+ &iomuxc {
+ 
+	pinctrl_cap_touch: cap_touch {
+		 fsl,pins = <
+		 	MX93_PAD_SAI1_TXC__GPIO1_IO12 	0x31e	/* PCAP_LVDS_nINT */
+		 >;
+	 };
+ 
+ 	pinctrl_backlight_pwm: backlight-pwmgrp {
+		 fsl,pins = <			    
+			MX93_PAD_GPIO_IO24__TPM3_CH3		0x2
+		>;
+	};
+
+	pinctrl_backlight_gpio: backlight-gpiogrp {
+		fsl,pins = <
+			MX93_PAD_GPIO_IO24__GPIO2_IO24		0x31e
+		>;
+	};
+ };
+ 
+&epxp {
+	status = "okay";
+};

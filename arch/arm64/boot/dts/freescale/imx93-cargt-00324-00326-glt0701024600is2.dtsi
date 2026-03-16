@@ -1,0 +1,102 @@
+ / {
+	 lvds_backlight: lvds_backlight {
+		 compatible = "gpio-backlight";
+		 pinctrl-names = "default";
+		 pinctrl-0 = <&pinctrl_backlight_lvds>;
+		 gpios = <&gpio2 8 GPIO_ACTIVE_HIGH>;
+		 default-on;
+		 status = "okay";
+	 };
+ 
+	 lvds_panel {		
+		 compatible = "globaltech,gt_GLT0701024600IS2";
+		 backlight = <&lvds_backlight>;
+		 enable-gpios = <&pca9555 4 GPIO_ACTIVE_HIGH>; 
+ 
+		 port {
+			 panel_lvds_in: endpoint {
+				 remote-endpoint = <&lvds_out>;
+			 };
+		 };
+	 };
+	 
+ };
+ 
+ &dphy {
+	 status = "disabled";
+ };
+ 
+ &dsi {
+	 status = "disabled";
+ };
+ 
+ &lcdif {
+	 assigned-clock-rates = <300000000>, <121000000>, <400000000>, <133333333>;
+ };
+ 
+ &ldb {
+	 status = "okay";
+ 
+	 lvds-channel@0 {
+		 status = "okay";
+ 
+		 port@1 {
+			 reg = <1>;
+ 
+			 lvds_out: endpoint {
+				 remote-endpoint = <&panel_lvds_in>;
+			 };
+		 };
+	 };
+ };
+ 
+ &ldb_phy {
+	 status = "okay";
+ };
+ 
+ &lpi2c1 {
+	 gt911@5d {
+		 compatible = "goodix,gt911";
+		 reg = <0x5d>;
+		 pinctrl-0 = <&pinctrl_cap_touch>;			
+		 interrupt-parent = <&gpio2>;
+		 interrupts = <9 IRQ_TYPE_EDGE_FALLING>;
+		 irq-gpios = <&gpio2 9 GPIO_ACTIVE_HIGH>;	//the driver uses this line to set the i2c address during initialization
+		 reset-gpios = <&gpio2 10 GPIO_ACTIVE_LOW>;
+		 status = "okay";
+	 };	
+ };
+ 
+ &lpi2c1 {
+ 
+	 /* eeprom on display */
+	 eeprom@50 {
+		 compatible = "atmel,24c02";
+		 reg = <0x50>;
+		 pagesize = <16>;		
+	 };
+ 
+ };
+ 
+ 
+ 
+ &iomuxc {
+ 
+	 pinctrl_backlight_lvds: backlight-lvds1grp {
+		 fsl,pins = <
+			 MX93_PAD_GPIO_IO08__GPIO2_IO08		0x31e
+		 >;
+	 };
+ 
+	 pinctrl_cap_touch: cap_touch {
+		 fsl,pins = <			    
+			 MX93_PAD_GPIO_IO09__GPIO2_IO09 		0x31e	/* nINT */
+			 MX93_PAD_GPIO_IO10__GPIO2_IO10 		0x31e	/* nRST */
+			 MX93_PAD_GPIO_IO11__GPIO2_IO11 		0x31e	/* WAKE */					 	
+		 >;
+	 };
+ 
+ 
+ };
+ 
+ 

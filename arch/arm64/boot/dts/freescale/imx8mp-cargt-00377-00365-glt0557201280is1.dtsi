@@ -1,0 +1,118 @@
+/ {
+	pwm_backlight: pwm_backlight {
+		compatible = "pwm-backlight";
+		pwms = <&pwm1 0 5000000 0>;
+		brightness-levels = <0 100>;
+		num-interpolated-steps = <100>;
+		default-brightness-level = <80>;
+		status = "okay";
+	};
+};
+
+&lcdif1 {
+	status = "okay";
+};
+
+&lcdif2 {
+	status = "okay";
+};
+
+&lcdif3 {
+	status = "okay";
+};
+
+&vpu_g1 {
+	status = "okay";
+};
+
+&vpu_g2 {
+	status = "okay";
+};
+
+&gpu_3d {
+	status = "okay";
+};
+
+&gpu_2d {
+	status = "okay";
+};
+
+&ml_vipsi {
+	status = "okay";
+};
+
+&mix_gpu_ml {
+	status = "okay";
+};
+
+&i2c1 {
+	status = "okay";
+
+	touchscreen@41 {
+		compatible = "ilitek,ili2520";
+		reg = <0x41>;
+
+		pinctrl-0 = <&pinctrl_touchscreen>;
+		reset-gpios = <&pca9555_20 4 GPIO_ACTIVE_LOW>;
+		interrupt-parent = <&gpio5>;
+		interrupts = <9 IRQ_TYPE_EDGE_FALLING>;
+		touchscreen-swapped-x-y;
+		touchscreen-inverted-x;
+		wakeup-source;
+	};
+};
+
+&pwm1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_backlight_pwm>;
+	status = "okay";
+};
+
+&iomuxc {
+
+	pinctrl_backlight_pwm: backlight-pwmgrp {
+		fsl,pins = <			    
+			MX8MP_IOMUXC_I2C4_SDA__PWM1_OUT			0x06
+		>;
+	};
+
+	pinctrl_touchscreen: touchscreengrp {
+		fsl,pins = <
+			MX8MP_IOMUXC_ECSPI1_SS0__GPIO5_IO09		0x130 //Pull-up, input enabled, medium drive
+		>;	 
+	};
+};
+
+&mipi_dsi {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	status = "okay";
+
+	port@0 {
+		dsim_from_lcdif: endpoint {
+			remote-endpoint = <&lcdif_to_dsim>;
+			data-lanes = <1 2 3 4>;
+		};
+	};
+
+	port@1 {
+		dsi_out: endpoint {
+			remote-endpoint = <&panel_in>;
+		};
+	};
+
+	panel@0 {
+		compatible = "globaltech,glt0557201280is1", "ilitek,ili9881c";
+		reg = <0>;
+		backlight = <&pwm_backlight>;
+		reset-gpios = <&pca9555_20 3 GPIO_ACTIVE_LOW>;
+		status = "okay";
+
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&dsi_out>;
+			};
+		};
+	};
+};
+

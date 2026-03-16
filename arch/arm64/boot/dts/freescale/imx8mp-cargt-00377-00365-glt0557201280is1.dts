@@ -1,0 +1,16 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright 2022 NXP
+ */
+
+ /dts-v1/;
+
+ #include <dt-bindings/usb/pd.h>
+ #include <dt-bindings/pwm/pwm.h>
+ #include "imx8mp-cargt-00377-00365.dts"
+ #include "imx8mp-cargt-00377-00365-glt0557201280is1.dtsi"
+
+/ {
+	model = "Cargt i.MX8MP 00377 OSM-L SOM on 00365 carrier board with 5.5-in MIPI DSI Display(GLT0557201280IS1-CTP)";	
+};
+

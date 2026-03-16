@@ -1,0 +1,94 @@
+ / {
+	 pwm_backlight: pwm_backlight {
+		compatible = "pwm-backlight";
+		pwms = <&tpm5 1 5000000 0>; // 200 Hz
+		brightness-levels = <0 100>;
+		num-interpolated-steps = <100>;
+		default-brightness-level = <80>;
+		status = "okay";
+	};
+};
+	
+&lcdif {
+	status = "okay";
+	assigned-clock-rates = <445333333>, <148444444>, <400000000>, <133333333>;
+};
+
+&dphy {
+	status = "okay";
+};
+	
+&dsi {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	status = "okay";
+
+	panel@0 {
+		compatible = "globaltech,glt0557201280is1", "ilitek,ili9881c";
+		reg = <0>;
+		pinctrl-names = "default";
+		rotation = <90>;
+		reset-gpios = <&pca9555_20 3 GPIO_ACTIVE_LOW>;
+		backlight = <&pwm_backlight>;
+		status = "okay";
+
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&dsi_out>;
+			};
+		};
+	};
+
+	ports {
+		port@1 {
+			reg = <1>;
+
+			dsi_out: endpoint {
+				remote-endpoint = <&panel_in>;
+			};
+		};
+	};
+};
+
+&lpi2c3 {
+	status = "okay";
+
+	touchscreen@41 {
+		compatible = "ilitek,ili2520";
+		reg = <0x41>;
+
+		pinctrl-0 = <&pinctrl_touchscreen>;
+		reset-gpios = <&pca9555_20 4 GPIO_ACTIVE_LOW>;
+		interrupt-parent = <&gpio1>;
+		interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
+		touchscreen-swapped-x-y;
+		touchscreen-inverted-x;
+		wakeup-source;
+	};
+};
+
+&tpm5 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_backlight_pwm>;
+	status = "okay";
+};
+
+&epxp {
+	status = "okay";
+};
+
+&iomuxc {
+
+	pinctrl_backlight_pwm: backlight-pwmgrp {
+		fsl,pins = <			    
+		MX93_PAD_GPIO_IO22__TPM5_CH1		0x2
+	>;
+	};
+
+	pinctrl_touchscreen: touchscreengrp {
+		fsl,pins = <
+			MX93_PAD_SAI1_TXFS__GPIO1_IO11			0x31e // DSICT_nINT
+		>;	
+	};
+};
+

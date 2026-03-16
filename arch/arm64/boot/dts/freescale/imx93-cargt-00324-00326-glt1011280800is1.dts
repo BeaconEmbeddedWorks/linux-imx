@@ -1,0 +1,15 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright 2022 NXP
+ */
+
+ /dts-v1/;
+
+ #include <dt-bindings/usb/pd.h>
+ #include <dt-bindings/pwm/pwm.h>
+ #include "imx93-cargt-00324-00326.dts"
+ #include "imx93-cargt-00324-00326-glt1011280800is1.dtsi"
+ 
+/ {
+	model = "Cargt i.MX93 00326 carrier board with 10-in LVDS Display(GLT10111280800IS1-CTP)";
+};
