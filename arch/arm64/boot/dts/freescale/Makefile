@@ -450,7 +450,9 @@ dtb-$(CONFIG_ARCH_MXC) += imx93-cargt-00324-00326.dtb \
 				imx93-cargt-00363-00365.dtb \
 				imx93-cargt-00363-00365-glt0557201280is1.dtb \
 				imx93-cargt-00363-00365-glt1011280800is1.dtb \
-				imx93-beacon-kit.dtb
+				imx93-beacon-kit.dtb \
+				imx93-beacon-kit-5.5.dtb \
+				imx93-beacon-kit-10.1.dtb
 
 dtb-$(CONFIG_ARCH_MXC) += imx91-9x9-qsb.dtb \
 			  imx91-9x9-qsb-can1.dtb \
