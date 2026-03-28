@@ -311,15 +311,7 @@
 	bus-width = <4>;
 	keep-power-in-suspend;
 	non-removable;
-	wakeup-source;
 	status = "okay";
-
-	wifi_wake_host {
-		compatible = "nxp,wifi-wake-host";
-		interrupt-parent = <&gpio3>;
-		interrupts = <26 IRQ_TYPE_LEVEL_LOW>;
-		interrupt-names = "host-wake";
-	};
 }; 
  
 &usbotg1 {
