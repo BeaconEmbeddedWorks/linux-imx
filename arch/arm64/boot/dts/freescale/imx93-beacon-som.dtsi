@@ -273,13 +273,12 @@
 
 &lpuart5 { /* bluetooth */
 	pinctrl-names = "default";
+	assigned-clocks = <&clk IMX93_CLK_LPUART5>;
+	assigned-clock-parents = <&clk IMX93_CLK_24M>;
 	pinctrl-0 = <&pinctrl_uart5>;
+	fsl,uart-has-rtscts;
 	status = "okay";
-
-	bluetooth {
-			compatible = "nxp,88w8997-bt";
-		};
- };
+};
 
 &media_blk_ctrl {
 	 status = "okay";
