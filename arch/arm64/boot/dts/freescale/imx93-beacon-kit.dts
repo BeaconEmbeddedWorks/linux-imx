@@ -7,6 +7,7 @@
 
 #include <dt-bindings/usb/pd.h>
 #include "imx93-beacon-som.dtsi"
+#include "imx93-beacon-ap1302-camera.dtsi"
 
 / {
 	model = "Beacon i.MX93 Kit";
